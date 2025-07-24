@@ -27,6 +27,7 @@ function EmployeeLogin() {
       const res = await axios.post(`${API_BASE_URL}/api/employees/login`, { mobile, password });
       if (res.data && res.data.success && res.data.employee) {
         sessionStorage.setItem('employeeMobile', res.data.employee.mobile);
+        sessionStorage.setItem('employeeId', res.data.employee._id);
         navigate('/scan-user-pass');
       } else {
         setError(res.data.message || 'Login failed');

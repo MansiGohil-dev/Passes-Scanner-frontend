@@ -13,6 +13,7 @@ function ScanUserPass() {
   const [scanHistory, setScanHistory] = useState([]);
   const [scanning, setScanning] = useState(false);
   const [employeeMobile, setEmployeeMobile] = useState("");
+  const [employeeId, setEmployeeId] = useState("");
   const [cameraError, setCameraError] = useState("");
   const [showScanner, setShowScanner] = useState(false);
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -39,6 +40,7 @@ function ScanUserPass() {
           const passId = match[1];
           try {
             const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
+              employeeId,
               mobile: employeeMobile
             });
             const { name, message: backendMessage, allowed } = response.data;
@@ -93,10 +95,12 @@ function ScanUserPass() {
 
   useEffect(() => {
     const mobile = sessionStorage.getItem('employeeMobile');
-    if (!mobile) {
+    const id = sessionStorage.getItem('employeeId');
+    if (!mobile || !id) {
       navigate('/elogin');
     } else {
       setEmployeeMobile(mobile);
+      setEmployeeId(id);
     }
   }, [navigate]);
 
@@ -171,7 +175,7 @@ function ScanUserPass() {
     }
     setScanning(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/passes/shared/${token}/scan`, { mobile: employeeMobile });
+      const res = await axios.post(`${API_BASE_URL}/api/passes/shared/${token}/scan`, { employeeId, mobile: employeeMobile });
       setScanResult(res.data);
     } catch (err) {
       setScanResult(null);
