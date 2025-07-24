@@ -7,6 +7,8 @@ import 'webrtc-adapter';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function ScanUserPass() {
+  // Track scanned QR codes
+  const [scannedQrs, setScannedQrs] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
   const [token, setToken] = useState("");
@@ -36,6 +38,17 @@ function ScanUserPass() {
     scannerRef.current.render(
       async (decodedText, decodedResult) => {
         setToken(decodedText);
+        // Prevent duplicate scan
+        if (scannedQrs.includes(decodedText)) {
+          setModalMessage("QR Expired: This QR code has already been scanned.");
+          setModalOpen(true);
+          // Pause scanner after scan
+          if (scannerRef.current) {
+            scannerRef.current.clear();
+            setScannerReady(false);
+          }
+          return;
+        }
         // Extract the pass/user ID from the scanned QR code URL
         const match = decodedText.match(/shared-pass\/(\w+)/);
         let userName = "N/A";
@@ -56,6 +69,8 @@ function ScanUserPass() {
             setScanResult({ name: userName, message, allowed });
             setModalMessage(message);
             setModalOpen(true);
+            // Add QR to scanned list
+            setScannedQrs(prev => [...prev, decodedText]);
             // Pause scanner after scan
             if (scannerRef.current) {
               scannerRef.current.clear();
@@ -566,6 +581,8 @@ function ScanUserPass() {
             onClick={() => {
               setModalOpen(false);
               setScannerReady(true); // Resume scanning after closing modal
+              setScanResult(null); // Clear previous scan result
+              setScanError(""); // Clear error
             }}
           >OK</button>
         </div>
