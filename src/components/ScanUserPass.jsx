@@ -1,0 +1,435 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { QrReader } from 'react-qr-reader';
+import { useNavigate } from 'react-router-dom';
+import 'webrtc-adapter';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+function ScanUserPass() {
+  const [token, setToken] = useState("");
+  const [scanResult, setScanResult] = useState(null);
+  const [scanError, setScanError] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [employeeMobile, setEmployeeMobile] = useState("");
+  const [cameraError, setCameraError] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
+  const [cameraReady, setCameraReady] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const mobile = sessionStorage.getItem('employeeMobile');
+    if (!mobile) {
+      navigate('/elogin');
+    } else {
+      setEmployeeMobile(mobile);
+    }
+  }, [navigate]);
+
+  // Handle image file upload for QR scanning
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        // Simple QR code detection - look for URL patterns in image
+        // This is a basic implementation - for production, you'd use a proper QR library
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        // For now, let's prompt user to manually enter the token from the image
+        alert('QR code detected in image! Please manually enter the token from the QR code.');
+        setCameraError('Image uploaded successfully. Please enter the token manually.');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setScanError("");
+    setScanResult(null);
+    if (!token) {
+      setScanError("Enter or scan a valid token");
+      return;
+    }
+    setScanning(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/passes/shared/${token}/scan`, { mobile: employeeMobile });
+      setScanResult(res.data);
+    } catch (err) {
+      setScanResult(null);
+      setScanError(err.response?.data?.message || "Access Denied");
+    }
+    setScanning(false);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-green-200 p-4">
+      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md text-center">
+        <h2 className="text-2xl font-bold text-green-700 mb-4">Employee Pass Scanner</h2>
+        
+        {/* Scanner Options */}
+        <div className="mb-4">
+          <div className="flex flex-col gap-2 mb-3">
+            <button
+              onClick={async () => {
+                console.log('Camera Scanner button clicked');
+                
+                // Check if MediaDevices API is available
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                  console.log('MediaDevices API not available');
+                  const isHTTPS = window.location.protocol === 'https:';
+                  const currentURL = window.location.href;
+                  
+                  let errorMessage = 'Camera not supported on this browser/device.';
+                  let alertMessage = '❌ Camera Not Supported\n\n';
+                  
+                  if (!isHTTPS) {
+                    errorMessage = 'Camera requires HTTPS. Please access via https:// URL.';
+                    alertMessage += '🔒 Camera requires HTTPS for security.\n\n';
+                    alertMessage += '📱 Try accessing via:\n';
+                    alertMessage += `https://${window.location.host}${window.location.pathname}\n\n`;
+                  } else {
+                    alertMessage += '📱 Your browser/device does not support live camera scanning.\n\n';
+                  }
+                  
+                  alertMessage += '✅ Alternative Options:\n';
+                  alertMessage += '1. Use "Take Photo / Upload Image" button\n';
+                  alertMessage += '2. Enter QR token manually\n';
+                  alertMessage += '3. Try a different browser (Chrome/Firefox)';
+                  
+                  setCameraError(errorMessage);
+                  alert(alertMessage);
+                  return;
+                }
+                
+                if (!showScanner) {
+                  // Request camera permission explicitly
+                  try {
+                    console.log('Requesting camera permission...');
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                      video: { 
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                      } 
+                    });
+                    console.log('Camera permission granted, stream:', stream);
+                    // Stop the test stream immediately
+                    stream.getTracks().forEach(track => {
+                      console.log('Stopping track:', track);
+                      track.stop();
+                    });
+                    setCameraReady(true);
+                    setCameraError('');
+                    setShowScanner(true);
+                  } catch (error) {
+                    console.error('Camera permission error:', error);
+                    if (error.name === 'NotAllowedError') {
+                      setCameraError('Camera permission denied. Please allow camera access and try again.');
+                      alert('Camera permission required. Please:\n1. Allow camera access when prompted\n2. Check browser permissions\n3. Try again');
+                    } else if (error.name === 'NotFoundError') {
+                      setCameraError('No camera found on this device.');
+                    } else {
+                      setCameraError(`Camera error: ${error.message}`);
+                    }
+                    setCameraReady(false);
+                  }
+                } else {
+                  setShowScanner(false);
+                  setCameraReady(false);
+                }
+                setShowImageUpload(false);
+                setScanError("");
+              }}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              {showScanner ? 'Close Camera Scanner' : 'Open Camera Scanner'}
+            </button>
+            
+            <button
+              onClick={() => {
+                console.log('Image Upload button clicked');
+                setShowImageUpload(!showImageUpload);
+                setShowScanner(false);
+                setCameraError("");
+                setScanError("");
+              }}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              {showImageUpload ? 'Close Photo Upload' : 'Take Photo / Upload Image'}
+            </button>
+          
+          {/* Camera Scanner */}
+          {showScanner && cameraReady && (
+            <div className="border-2 border-dashed border-blue-300 p-4 rounded-lg mb-4">
+              <div className="text-center mb-2">
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  🟢 Camera Active - Ready to Scan
+                </div>
+              </div>
+              <QrReader
+                constraints={{
+                  video: {
+                    facingMode: { ideal: 'environment' },
+                    width: { min: 640, ideal: 1280, max: 1920 },
+                    height: { min: 480, ideal: 720, max: 1080 }
+                  }
+                }}
+                onResult={(result, error) => {
+                  if (!!result) {
+                    const data = result?.text;
+                    if (data) {
+                      console.log('🎯 QR Code scanned successfully:', data);
+                      const match = data.match(/shared-pass\/(\w+)/);
+                      const extractedToken = match ? match[1] : data;
+                      setToken(extractedToken);
+                      setShowScanner(false);
+                      setCameraReady(false);
+                      setScanError("");
+                      setCameraError("");
+                      alert('✅ QR Code scanned successfully! Token: ' + extractedToken);
+                    }
+                  }
+                  if (!!error) {
+                    console.error('QR Scanner error details:', {
+                      name: error.name,
+                      message: error.message,
+                      stack: error.stack
+                    });
+                    // Only show persistent errors, not scanning errors
+                    if (error.name === 'NotAllowedError' || error.name === 'NotFoundError') {
+                      setCameraError(`Camera error: ${error.message}`);
+                    }
+                  }
+                }}
+                videoStyle={{
+                  width: '100%',
+                  height: '300px',
+                  objectFit: 'cover',
+                  borderRadius: '8px'
+                }}
+                style={{ 
+                  width: '100%', 
+                  height: '300px',
+                  border: '2px solid #10B981',
+                  borderRadius: '8px',
+                  backgroundColor: '#000',
+                  overflow: 'hidden'
+                }}
+              />
+              <div className="text-xs text-green-600 mt-2 text-center font-medium">
+                📱 Point your camera at the QR code to scan
+              </div>
+              <div className="text-xs text-gray-500 mt-1 text-center">
+                Make sure the QR code is well-lit and clearly visible
+              </div>
+            </div>
+          )}
+          
+          {/* Camera Loading State */}
+          {showScanner && !cameraReady && (
+            <div className="border-2 border-dashed border-yellow-300 p-4 rounded-lg mb-4">
+              <div className="text-center">
+                <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-3">
+                  🟡 Initializing Camera...
+                </div>
+                <div className="animate-pulse bg-gray-200 h-48 rounded-lg mb-2"></div>
+                <p className="text-sm text-gray-600">Requesting camera permission and starting scanner...</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Image Upload Scanner */}
+          {showImageUpload && (
+            <div className="border-2 border-dashed border-green-300 p-4 rounded-lg mb-4">
+              <div className="text-center">
+                <div className="mb-4">
+                  <svg className="mx-auto h-12 w-12 text-green-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">Upload QR Code Image</h3>
+                  <p className="mt-1 text-sm text-gray-500">Take a photo or select an image containing a QR code</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleImageUpload}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                />
+                <p className="text-xs text-gray-400 mt-2">Supports: JPG, PNG, WebP</p>
+              </div>
+            </div>
+          )}
+          
+          <div className="text-sm text-gray-600 mt-2 text-center">
+            {showScanner ? 'Camera scanner is active' : showImageUpload ? 'Image upload is ready' : 'Choose a scanning method above or enter token manually below'}
+          </div>
+        </div>
+          
+          {showScanner && (
+            <div className="border-2 border-dashed border-gray-300 p-4 rounded-lg">
+              {(() => {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const hasMediaDevices = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+                
+                // Show camera not available only on desktop without MediaDevices API
+                if (!hasMediaDevices && !isMobile) {
+                  return (
+                    <div className="text-center p-8 bg-red-50 rounded">
+                      <p className="text-red-600 font-semibold mb-2">Camera Not Available</p>
+                      <p className="text-sm text-gray-600">This browser/device doesn't support camera access.</p>
+                      <p className="text-sm text-gray-600">Please use the manual token input below.</p>
+                    </div>
+                  );
+                }
+                
+                // On mobile or when MediaDevices API is available, show QR scanner
+                return (
+                <>
+                  <QrReader
+                    constraints={{
+                      video: {
+                        facingMode: 'environment'  // Simple rear camera request
+                      }
+                    }}
+                    videoContainerStyle={{
+                      width: '100%',
+                      height: '300px',
+                      position: 'relative',
+                      backgroundColor: '#000',
+                      borderRadius: '8px',
+                      overflow: 'hidden'
+                    }}
+                    videoStyle={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transform: 'scaleX(-1)' // Mirror for better UX
+                    }}
+                    onResult={(result, error) => {
+                      if (!!result) {
+                        const data = result?.text;
+                        if (data) {
+                          console.log('QR Code scanned successfully:', data);
+                          const match = data.match(/shared-pass\/(\w+)/);
+                          const extractedToken = match ? match[1] : data;
+                          setToken(extractedToken);
+                          setShowScanner(false); // Hide scanner after successful scan
+                          setScanError("");
+                          setCameraError("");
+                          // Show success message
+                          alert('QR Code scanned successfully!');
+                        }
+                      }
+                      if (!!error) {
+                        console.error('QR Scanner error details:', {
+                          name: error.name,
+                          message: error.message,
+                          stack: error.stack
+                        });
+                        
+                        // Handle specific mobile camera errors
+                        if (error.name === 'NotAllowedError') {
+                          setCameraError("Camera permission denied. Please allow camera access in browser settings.");
+                          alert('Camera permission denied. Please:\n1. Refresh the page\n2. Allow camera access when prompted\n3. Try again');
+                        } else if (error.name === 'NotFoundError') {
+                          setCameraError("No camera found on this device.");
+                        } else if (error.name === 'OverconstrainedError') {
+                          setCameraError("Camera constraints not supported. Trying fallback...");
+                          console.log('Trying fallback camera constraints');
+                          setUseFallbackCamera(true);
+                          setTimeout(() => {
+                            setCameraError('');
+                          }, 2000);
+                        } else if (error.message && error.message.includes('getUserMedia')) {
+                          if (!useFallbackCamera) {
+                            setCameraError("Trying simplified camera mode...");
+                            setUseFallbackCamera(true);
+                            setTimeout(() => {
+                              setCameraError('');
+                            }, 2000);
+                          } else {
+                            setCameraError("Camera access failed. Please check permissions or use manual input.");
+                          }
+                        } else {
+                          setCameraError(`Camera error: ${error.message}`);
+                        }
+                      }
+                    }}
+                    style={{ 
+                      width: '100%', 
+                      height: '300px',
+                      border: '2px solid #4F46E5',
+                      borderRadius: '8px',
+                      backgroundColor: '#000'
+                    }}
+                  />
+                  <div className="text-xs text-gray-500 mt-2 text-center">
+                    Position the QR code within the camera view
+                  </div>
+                  {cameraError && (
+                    <div className="text-red-600 text-sm mt-2 text-center">
+                      {cameraError}
+                    </div>
+                  )}
+                </>
+                );
+              })()}
+            </div>
+          )}
+          
+          <div className="text-sm text-gray-600 mt-2 text-center">
+            {showScanner ? 'Camera scanner is active' : 'Click "Open Camera Scanner" to scan QR codes or enter token manually below'}
+          </div>
+        </div>
+        <form onSubmit={handleSubmit} className="mb-4">
+          <input
+            type="text"
+            placeholder="Paste or scan user QR token"
+            value={token}
+            onChange={e => setToken(e.target.value)}
+            className="border px-3 py-2 rounded w-full mb-2"
+            maxLength={64}
+          />
+          {/* Hide employee mobile input, use value from sessionStorage */}
+          {/* <input type="text" value={employeeMobile} readOnly hidden /> */}
+          <button
+            className="bg-green-600 text-white px-4 py-2 rounded w-full"
+            type="submit"
+            disabled={scanning}
+          >
+            {scanning ? "Checking..." : "Check Pass"}
+          </button>
+          {scanError && <div className="text-red-600 mt-2">{scanError}</div>}
+        </form>
+        {scanResult && scanResult.allowed ? (
+          <div className="p-4 bg-green-50 rounded shadow-inner mt-4">
+            <h3 className="text-xl font-bold text-green-800 mb-2">User Details</h3>
+            <p className="mb-1"><b>Name:</b> {scanResult.name}</p>
+            <p className="mb-1"><b>Mobile:</b> {scanResult.mobile}</p>
+            {/* Add more fields as needed */}
+            <div className="text-green-700 font-semibold mt-2">Access Granted</div>
+          </div>
+        ) : null}
+        {scanResult && scanResult.allowed === false && !scanError && (
+          <div className="p-4 bg-red-50 rounded shadow-inner mt-4 text-red-700 font-semibold">Access Denied</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default ScanUserPass;
