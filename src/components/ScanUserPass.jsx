@@ -614,8 +614,9 @@ function ScanUserPass() {
               setModalOpen(false);
               setScanResult(null); // Clear previous scan result
               setScanError(""); // Clear error
-              // Redirect to scanner camera route without refreshing
-              navigate('/employee-scan'); // Change to your actual scanner route if different
+              setShowScanner(true); // Open camera scanner again
+              setCameraReady(true); // Mark camera as ready
+              setScannerReady(false); // Force re-initialization
             }}
           >OK</button>
         </div>
