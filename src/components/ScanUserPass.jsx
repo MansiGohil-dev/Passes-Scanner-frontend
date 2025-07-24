@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import QrScanner from 'react-qr-scanner';
+import { QrScanner } from '@yudiel/react-qr-scanner';
 import { useNavigate } from 'react-router-dom';
 import 'webrtc-adapter';
 
