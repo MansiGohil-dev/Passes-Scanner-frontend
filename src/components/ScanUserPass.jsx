@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import QrReader from 'react-qr-reader';
+import { QrScanner } from '@yudiel/react-qr-scanner';
 import { useNavigate } from 'react-router-dom';
 import 'webrtc-adapter';
 
@@ -179,40 +179,29 @@ function ScanUserPass() {
                   🟢 Camera Active - Ready to Scan
                 </div>
               </div>
-              <QrReader
-                constraints={{
-                  video: {
-                    facingMode: { ideal: 'environment' },
-                    width: { min: 640, ideal: 1280, max: 1920 },
-                    height: { min: 480, ideal: 720, max: 1080 }
+              <QrScanner
+                onDecode={(data) => {
+                  if (data) {
+                    console.log('🎯 QR Code scanned successfully:', data);
+                    const match = data.match(/shared-pass\/(\w+)/);
+                    const extractedToken = match ? match[1] : data;
+                    setToken(extractedToken);
+                    setShowScanner(false);
+                    setCameraReady(false);
+                    setScanError("");
+                    setCameraError("");
+                    alert('✅ QR Code scanned successfully! Token: ' + extractedToken);
                   }
                 }}
-                onResult={(result, error) => {
-                  if (!!result) {
-                    const data = result?.text;
-                    if (data) {
-                      console.log('🎯 QR Code scanned successfully:', data);
-                      const match = data.match(/shared-pass\/(\w+)/);
-                      const extractedToken = match ? match[1] : data;
-                      setToken(extractedToken);
-                      setShowScanner(false);
-                      setCameraReady(false);
-                      setScanError("");
-                      setCameraError("");
-                      alert('✅ QR Code scanned successfully! Token: ' + extractedToken);
-                    }
+                onError={(error) => {
+                  if (error) {
+                    console.error('QR Scanner error details:', error);
                   }
-                  if (!!error) {
-                    console.error('QR Scanner error details:', {
-                      name: error.name,
-                      message: error.message,
-                      stack: error.stack
-                    });
-                    // Only show persistent errors, not scanning errors
-                    if (error.name === 'NotAllowedError' || error.name === 'NotFoundError') {
-                      setCameraError(`Camera error: ${error.message}`);
-                    }
-                  }
+                }}
+                constraints={{
+                  facingMode: 'environment',
+                  width: { min: 640, ideal: 1280, max: 1920 },
+                  height: { min: 480, ideal: 720, max: 1080 }
                 }}
                 videoStyle={{
                   width: '100%',
