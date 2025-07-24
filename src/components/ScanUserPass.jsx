@@ -726,6 +726,7 @@ function ScanUserPass() {
     } else {
       setEmployeeMobile(mobile);
       setEmployeeId(id);
+      setScannerReady(true); // Auto-open scanner after login
     }
   }, [navigate]);
 
