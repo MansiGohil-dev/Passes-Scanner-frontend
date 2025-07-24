@@ -112,6 +112,11 @@ function ScanUserPass() {
       setModalMessage(userMessage);
       setModalOpen(true);
       setScannerReady(false);
+      // Ensure scanner is cleared and does not attempt to process frames
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
     }
   );
 
