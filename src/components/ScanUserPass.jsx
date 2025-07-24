@@ -36,6 +36,8 @@ function ScanUserPass() {
         let status = "Denied";
         let message = "";
         let error = "";
+        const [showModal, setShowModal] = useState(false);
+        const [modalMessage, setModalMessage] = useState("");
         if (match) {
           const passId = match[1];
           try {
@@ -49,6 +51,8 @@ function ScanUserPass() {
             message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
             setScanResult({ name: userName, message, allowed });
             setScanError("");
+            setModalMessage("Access Granted! Entry allowed.");
+            setShowModal(true);
             setScanHistory(prev => [{
               time: new Date().toLocaleTimeString(),
               qr: decodedText,
@@ -61,6 +65,10 @@ function ScanUserPass() {
             setScanResult(null);
             error = err.response?.data?.message || "Access Denied";
             setScanError(error);
+            if (error.includes("QR expired")) {
+              setModalMessage("QR Expired! This pass has already been used and cannot be scanned again.");
+              setShowModal(true);
+            }
             setScanHistory(prev => [{
               time: new Date().toLocaleTimeString(),
               qr: decodedText,
@@ -109,6 +117,18 @@ function ScanUserPass() {
   // Render the QR scanner container
   return (
     <div>
+      {/* Modal Popup */}
+      {showModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{ background: '#fff', padding: 32, borderRadius: 12, boxShadow: '0 2px 16px #444', minWidth: 300, textAlign: 'center' }}>
+            <h2 style={{ color: modalMessage.includes('Granted') ? '#16a34a' : '#dc2626' }}>{modalMessage}</h2>
+            <button onClick={() => setShowModal(false)} style={{ marginTop: 24, background: '#4F46E5', color: '#fff', padding: '8px 32px', border: 'none', borderRadius: 6, fontWeight: 600 }}>OK</button>
+          </div>
+        </div>
+      )}
       {/* QR Scanner will render here */}
       <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
       {/* Result and access messages */}
