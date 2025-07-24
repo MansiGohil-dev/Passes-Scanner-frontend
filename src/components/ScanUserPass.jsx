@@ -158,8 +158,39 @@ function ScanUserPass() {
       {/* QR Scanner will render here */}
       <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
       {/* Result and access messages */}
-      {/* Scan history */}
-      
+      {modalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+        }}>
+          <div style={{ background: '#fff', padding: 32, borderRadius: 8, minWidth: 300, textAlign: 'center', boxShadow: '0 2px 10px #0003' }}>
+            {scanResult && scanResult.expired ? (
+              <>
+                <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>QR Expired</div>
+                <div style={{ marginBottom: 12 }}>This QR code has already been scanned.</div>
+              </>
+            ) : scanResult ? (
+              <>
+                <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>Scan Result</div>
+                <div style={{ marginBottom: 8 }}><b>User Name:</b> {scanResult.name || 'N/A'}</div>
+                <div style={{ marginBottom: 8 }}><b>Access:</b> {scanResult.allowed ? 'Allowed' : 'Denied'}</div>
+                {scanResult.message && <div style={{ marginBottom: 8 }}>{scanResult.message}</div>}
+              </>
+            ) : (
+              <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{modalMessage}</div>
+            )}
+            <button
+              style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
+              onClick={() => {
+                setModalOpen(false);
+                setScannerReady(true); // Resume scanning after closing modal
+                setScanResult(null); // Clear previous scan result
+                setScanError(""); // Clear error
+              }}
+            >OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
   const handleImageUpload = (event) => {
