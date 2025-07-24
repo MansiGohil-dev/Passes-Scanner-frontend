@@ -536,7 +536,6 @@ function ScanUserPass() {
           <div className="p-4 bg-red-50 rounded shadow-inner mt-4 text-red-700 font-semibold">Access Denied</div>
         )}
       </div>
-    </div>
     {/* Modal for scan result */}
     {modalOpen && (
       <div style={{
@@ -552,6 +551,7 @@ function ScanUserPass() {
         </div>
       </div>
     )}
+    </div>
   );
 }
 
