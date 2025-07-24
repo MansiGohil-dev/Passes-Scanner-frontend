@@ -52,6 +52,7 @@ export default defineConfig({
           fileName: '404.html',
           source: bundle['index.html'].source
         });
+        console.log('Generated 404.html with production asset paths');
       }
     }
   }
