@@ -33,81 +33,95 @@ function ScanUserPass() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!scannerReady || scannerRef.current) return;
+  if (!scannerReady || scannerRef.current) return;
 
-    scannerRef.current = new Html5QrcodeScanner(
-      "reader",
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      false
-    );
+  scannerRef.current = new Html5QrcodeScanner(
+    "reader",
+    { fps: 10, qrbox: { width: 250, height: 250 } },
+    false
+  );
 
-    scannerRef.current.render(
-      async (decodedText) => {
-        setToken(decodedText);
-        if (scannedQrs.includes(decodedText)) {
-          setModalMessage("QR Expired: This QR code has already been scanned.");
-          setScanResult({ name: '', allowed: false, expired: true });
-          setModalOpen(true);
-          scannerRef.current.clear();
-          setScannerReady(false);
-          return;
-        }
-
-        const match = decodedText.match(/shared-pass\/(\w+)/);
-        let userName = "N/A";
-        let status = "Denied";
-        let message = "";
-        let error = "";
-
-        if (match) {
-          const passId = match[1];
-          try {
-            const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
-              employeeId: sessionStorage.getItem('employeeId'),
-              mobile: sessionStorage.getItem('employeeMobile')
-            });
-            const { name, message: backendMessage, allowed } = response.data;
-            userName = name || "N/A";
-            status = allowed ? "Allowed" : "Denied";
-            message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
-            setScanResult({ name: userName, allowed, message });
-            setModalMessage("");
-            setModalOpen(true);
-            setScannedQrs(prev => [...prev, decodedText]);
-            scannerRef.current.clear();
-            setScannerReady(false);
-            setScanError("");
-          } catch (err) {
-            error = err.response?.data?.message || "Access Denied";
-            setScanResult({ name: "N/A", allowed: false, message: error });
-            setModalMessage("");
-            setModalOpen(true);
-            scannerRef.current.clear();
-            setScannerReady(false);
-            setScanError(error);
-          }
-        } else {
-          error = "Invalid QR code format.";
-          setScanResult(null);
-          setScanError(error);
-          setModalMessage(error);
-          setModalOpen(true);
-          scannerRef.current.clear();
-          setScannerReady(false);
-        }
-      },
-      (errorMessage) => {
-        setScanError(errorMessage);
-      }
-    );
-
-    return () => {
-      if (scannerRef.current) {
+  scannerRef.current.render(
+    async (decodedText) => {
+      setToken(decodedText);
+      if (scannedQrs.includes(decodedText)) {
+        setModalMessage("QR Expired: This QR code has already been scanned.");
+        setScanResult({ name: '', allowed: false, expired: true });
+        setModalOpen(true);
         scannerRef.current.clear();
-        scannerRef.current = null;
+        setScannerReady(false);
+        return;
       }
-    };
-  }, [scannerReady, scannedQrs]);
+
+      const match = decodedText.match(/shared-pass\/(\w+)/);
+      let userName = "N/A";
+      let status = "Denied";
+      let message = "";
+      let error = "";
+
+      if (match) {
+        const passId = match[1];
+        try {
+          const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
+            employeeId: sessionStorage.getItem('employeeId'),
+            mobile: sessionStorage.getItem('employeeMobile')
+          });
+          const { name, message: backendMessage, allowed } = response.data;
+          userName = name || "N/A";
+          status = allowed ? "Allowed" : "Denied";
+          message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
+          setScanResult({ name: userName, allowed, message });
+          setModalMessage("");
+          setModalOpen(true);
+          setScannedQrs(prev => [...prev, decodedText]);
+          scannerRef.current.clear();
+          setScannerReady(false);
+          setScanError("");
+        } catch (err) {
+          error = err.response?.data?.message || "Access Denied";
+          setScanResult({ name: "N/A", allowed: false, message: error });
+          setModalMessage("");
+          setModalOpen(true);
+          scannerRef.current.clear();
+          setScannerReady(false);
+          setScanError(error);
+        }
+      } else {
+        error = "Invalid QR code format.";
+        setScanResult(null);
+        setScanError(error);
+        setModalMessage(error);
+        setModalOpen(true);
+        scannerRef.current.clear();
+        setScannerReady(false);
+      }
+    },
+    (errorMessage) => {
+      // Enhanced error handling for camera/video issues
+      let userMessage = errorMessage;
+      if (errorMessage.includes("NotReadableError")) {
+        userMessage = "Camera could not be started. Please ensure no other app is using the camera and grant permission.";
+      } else if (errorMessage.includes("NotAllowedError")) {
+        userMessage = "Camera access was denied. Please allow camera permissions in your browser settings.";
+      } else if (errorMessage.includes("OverconstrainedError")) {
+        userMessage = "No suitable camera found on this device.";
+      } else if (errorMessage.includes("NotFoundError")) {
+        userMessage = "No camera device found. Please connect a camera and try again.";
+      }
+      setScanError(userMessage);
+      setModalMessage(userMessage);
+      setModalOpen(true);
+      setScannerReady(false);
+    }
+  );
+
+  return () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+      scannerRef.current = null;
+    }
+  };
+}, [scannerReady, scannedQrs]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
