@@ -616,7 +616,7 @@ function ScanUserPass() {
               setScanError(""); // Clear error
               setShowScanner(true); // Open camera scanner again
               setCameraReady(true); // Mark camera as ready
-              setScannerReady(false); // Force re-initialization
+              setScannerReady(true); // Ensure scannerReady is true to trigger scanner
             }}
           >OK</button>
         </div>
