@@ -7,6 +7,8 @@ import 'webrtc-adapter';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function ScanUserPass() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
   const [token, setToken] = useState("");
   const [scanResult, setScanResult] = useState(null);
   const [scanError, setScanError] = useState("");
@@ -36,8 +38,6 @@ function ScanUserPass() {
         let status = "Denied";
         let message = "";
         let error = "";
-        const [showModal, setShowModal] = useState(false);
-        const [modalMessage, setModalMessage] = useState("");
         if (match) {
           const passId = match[1];
           try {
@@ -50,9 +50,9 @@ function ScanUserPass() {
             status = allowed ? "Allowed" : "Denied";
             message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
             setScanResult({ name: userName, message, allowed });
+            setModalMessage(message);
+            setModalOpen(true);
             setScanError("");
-            setModalMessage("Access Granted! Entry allowed.");
-            setShowModal(true);
             setScanHistory(prev => [{
               time: new Date().toLocaleTimeString(),
               qr: decodedText,
@@ -64,11 +64,9 @@ function ScanUserPass() {
           } catch (err) {
             setScanResult(null);
             error = err.response?.data?.message || "Access Denied";
+            setModalMessage(error);
+            setModalOpen(true);
             setScanError(error);
-            if (error.includes("QR expired")) {
-              setModalMessage("QR Expired! This pass has already been used and cannot be scanned again.");
-              setShowModal(true);
-            }
             setScanHistory(prev => [{
               time: new Date().toLocaleTimeString(),
               qr: decodedText,
@@ -117,18 +115,6 @@ function ScanUserPass() {
   // Render the QR scanner container
   return (
     <div>
-      {/* Modal Popup */}
-      {showModal && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div style={{ background: '#fff', padding: 32, borderRadius: 12, boxShadow: '0 2px 16px #444', minWidth: 300, textAlign: 'center' }}>
-            <h2 style={{ color: modalMessage.includes('Granted') ? '#16a34a' : '#dc2626' }}>{modalMessage}</h2>
-            <button onClick={() => setShowModal(false)} style={{ marginTop: 24, background: '#4F46E5', color: '#fff', padding: '8px 32px', border: 'none', borderRadius: 6, fontWeight: 600 }}>OK</button>
-          </div>
-        </div>
-      )}
       {/* QR Scanner will render here */}
       <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
       {/* Result and access messages */}
@@ -551,6 +537,21 @@ function ScanUserPass() {
         )}
       </div>
     </div>
+    {/* Modal for scan result */}
+    {modalOpen && (
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+        background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+      }}>
+        <div style={{ background: '#fff', padding: 32, borderRadius: 8, minWidth: 300, textAlign: 'center', boxShadow: '0 2px 10px #0003' }}>
+          <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{modalMessage}</div>
+          <button
+            style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
+            onClick={() => setModalOpen(false)}
+          >OK</button>
+        </div>
+      </div>
+    )}
   );
 }
 
