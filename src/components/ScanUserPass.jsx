@@ -31,47 +31,56 @@ function ScanUserPass() {
         setToken(decodedText);
         // Extract the pass/user ID from the scanned QR code URL
         const match = decodedText.match(/shared-pass\/(\w+)/);
-        let result = null;
-        let error = "";
         let userName = "N/A";
         let status = "Denied";
+        let message = "";
+        let error = "";
         if (match) {
           const passId = match[1];
           try {
-            const response = await axios.get(`${API_BASE_URL}/api/passes/${passId}`, {
-              withCredentials: true // send cookies/session if needed
+            const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
+              mobile: employeeMobile
             });
-            result = response.data;
-            userName = result.name || result.username || result.userName || result.fullName || 'N/A';
-            status = "Allowed";
-            setScanResult(result);
+            const { name, message: backendMessage, allowed } = response.data;
+            userName = name || "N/A";
+            status = allowed ? "Allowed" : "Denied";
+            message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
+            setScanResult({ name: userName, message, allowed });
             setScanError("");
+            setScanHistory(prev => [{
+              time: new Date().toLocaleTimeString(),
+              qr: decodedText,
+              userName,
+              status,
+              message,
+              error: ""
+            }, ...prev]);
           } catch (err) {
-            result = null;
-            if (err.response && (err.response.status === 403 || err.response.status === 401)) {
-              error = "Access Denied";
-            } else {
-              error = "User details not found or error fetching details.";
-            }
             setScanResult(null);
+            error = err.response?.data?.message || "Access Denied";
             setScanError(error);
+            setScanHistory(prev => [{
+              time: new Date().toLocaleTimeString(),
+              qr: decodedText,
+              userName: "N/A",
+              status: "Denied",
+              message: "",
+              error
+            }, ...prev]);
           }
         } else {
           error = "Invalid QR code format.";
           setScanResult(null);
           setScanError(error);
-        }
-        // Add to scan history
-        setScanHistory(prev => [
-          {
+          setScanHistory(prev => [{
             time: new Date().toLocaleTimeString(),
             qr: decodedText,
-            userName,
-            status: error === "" ? status : "Denied",
+            userName: "N/A",
+            status: "Denied",
+            message: "",
             error
-          },
-          ...prev
-        ]);
+          }, ...prev]);
+        }
       },
       (errorMessage) => {
         setScanError(errorMessage);
