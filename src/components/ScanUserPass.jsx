@@ -40,8 +40,8 @@ function ScanUserPass() {
           const passId = match[1];
           try {
             const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
-              employeeId,
-              mobile: employeeMobile
+              employeeId: sessionStorage.getItem('employeeId'),
+              mobile: sessionStorage.getItem('employeeMobile')
             });
             const { name, message: backendMessage, allowed } = response.data;
             userName = name || "N/A";
@@ -175,7 +175,10 @@ function ScanUserPass() {
     }
     setScanning(true);
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/passes/shared/${token}/scan`, { employeeId, mobile: employeeMobile });
+      const res = await axios.post(`${API_BASE_URL}/api/passes/shared/${token}/scan`, {
+      employeeId: sessionStorage.getItem('employeeId'),
+      mobile: sessionStorage.getItem('employeeMobile')
+    });
       setScanResult(res.data);
     } catch (err) {
       setScanResult(null);
