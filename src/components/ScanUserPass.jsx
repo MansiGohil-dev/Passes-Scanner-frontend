@@ -48,7 +48,7 @@ function ScanUserPass() {
             scannerRef.current.clear();
             setScannerReady(false);
           }
-          return;
+          return; // Ensure no further code is executed, preventing double modal
         }
         // Extract the pass/user ID from the scanned QR code URL
         const match = decodedText.match(/shared-pass\/(\w+)/);
@@ -156,7 +156,9 @@ function ScanUserPass() {
   return (
     <div>
       {/* QR Scanner will render here */}
-      <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
+      {!modalOpen && (
+        <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
+      )}
       {/* Result and access messages */}
       {modalOpen && (
         <div style={{
