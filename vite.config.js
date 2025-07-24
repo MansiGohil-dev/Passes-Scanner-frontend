@@ -14,5 +14,13 @@ export default defineConfig({
       '.loca.lt' // Allow any loca.lt subdomain
     ]
     // Removed HTTPS for now - using localtunnel for HTTPS
+  },
+  build: {
+    // Ensure _redirects file is copied to dist folder
+    rollupOptions: {
+      input: {
+        main: './index.html'
+      }
+    }
   }
 })
