@@ -69,9 +69,9 @@ function ShareExtraPass({ token, total, remaining }) {
       // Backend may return token or tokens (array)
       let links = [];
       if (data.token) {
-        links = [`${window.location.origin}/scan-pass/${data.token}`];
+        links = [`${window.location.origin}/#/scan-pass/${data.token}`];
       } else if (data.tokens && Array.isArray(data.tokens)) {
-        links = data.tokens.map(token => `${window.location.origin}/scan-pass/${token}`);
+        links = data.tokens.map(token => `${window.location.origin}/#/scan-pass/${token}`);
       } else {
         setError('No valid pass link received from server.');
         setLoading(false);

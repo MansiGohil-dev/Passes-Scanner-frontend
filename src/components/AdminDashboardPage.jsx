@@ -161,7 +161,7 @@ function AdminDashboardPage() {
           count: pendingShare.count,
         });
         // Generate WhatsApp link
-        const shareUrl = `${window.location.origin}/shared-pass/${shareRes.data.token}`;
+        const shareUrl = `${window.location.origin}/#/shared-pass/${shareRes.data.token}`;
         // Ensure mobile is in E.164 format (no +, just country code and number)
         let cleanMobile = pendingShare.mobile.replace(/\D/g, '');
         if (cleanMobile.length === 10) {

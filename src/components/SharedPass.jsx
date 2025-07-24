@@ -58,7 +58,7 @@ function SharedPass() {
         // Log for debugging
         console.log('WhatsApp number being sent:', cleanMobile);
         // WhatsApp will still show an error if the number is not registered on WhatsApp, even if the format is correct.
-        const websiteLink = `${window.location.origin}/shared-pass/${info.token}`;
+        const websiteLink = `${window.location.origin}/#/shared-pass/${info.token}`;
         const message = `Here is your event pass: ${websiteLink}`;
         // Open WhatsApp Web (desktop) or WhatsApp app (mobile)
         const waUrl = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
@@ -144,7 +144,7 @@ function SharedPass() {
         <div className="mb-4 flex flex-col items-center">
           <span className="font-semibold text-gray-700 mb-1">Your Pass</span>
           <QRCodeSVG
-            value={`${window.location.origin}/shared-pass/${info.token}`}
+            value={`${window.location.origin}/#/shared-pass/${info.token}`}
             size={150}
             className="mx-auto mb-2"
           />
