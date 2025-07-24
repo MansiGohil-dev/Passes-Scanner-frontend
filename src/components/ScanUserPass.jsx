@@ -22,10 +22,12 @@ function ScanUserPass() {
   const [cameraReady, setCameraReady] = useState(false);
   const navigate = useNavigate();
 
-  const scannerRef = useRef(null);
+  const scannerRef = React.useRef(null);
+  const [scannerReady, setScannerReady] = useState(false);
 
   useEffect(() => {
     // QR Scanner setup using html5-qrcode
+    if (scannerReady) return; // Prevent re-initialization
     scannerRef.current = new Html5QrcodeScanner(
       "reader",
       { fps: 10, qrbox: 250 },
@@ -54,9 +56,10 @@ function ScanUserPass() {
             setScanResult({ name: userName, message, allowed });
             setModalMessage(message);
             setModalOpen(true);
-            // Pause scanner after a scan
+            // Pause scanner after scan
             if (scannerRef.current) {
               scannerRef.current.clear();
+              setScannerReady(false);
             }
             setScanError("");
             setScanHistory(prev => [{
@@ -72,9 +75,10 @@ function ScanUserPass() {
             error = err.response?.data?.message || "Access Denied";
             setModalMessage(error);
             setModalOpen(true);
-            // Pause scanner after a scan
+            // Pause scanner after scan
             if (scannerRef.current) {
               scannerRef.current.clear();
+              setScannerReady(false);
             }
             setScanError(error);
             setScanHistory(prev => [{
@@ -105,9 +109,12 @@ function ScanUserPass() {
       }
     );
     return () => {
-      scanner.clear();
+      if (scannerRef.current) {
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
     };
-  }, []);
+  }, [scannerReady]);
 
   useEffect(() => {
     const mobile = sessionStorage.getItem('employeeMobile');
@@ -558,77 +565,7 @@ function ScanUserPass() {
             style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
             onClick={() => {
               setModalOpen(false);
-              // Resume scanner for next QR
-              setTimeout(() => {
-                if (scannerRef.current) {
-                  scannerRef.current.render(
-                    async (decodedText, decodedResult) => {
-                      setToken(decodedText);
-                      const match = decodedText.match(/shared-pass\/(\w+)/);
-                      let userName = "N/A";
-                      let status = "Denied";
-                      let message = "";
-                      let error = "";
-                      if (match) {
-                        const passId = match[1];
-                        try {
-                          const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
-                            employeeId: sessionStorage.getItem('employeeId'),
-                            mobile: sessionStorage.getItem('employeeMobile')
-                          });
-                          const { name, message: backendMessage, allowed } = response.data;
-                          userName = name || "N/A";
-                          status = allowed ? "Allowed" : "Denied";
-                          message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
-                          setScanResult({ name: userName, message, allowed });
-                          setModalMessage(message);
-                          setModalOpen(true);
-                          setScanError("");
-                          setScanHistory(prev => [{
-                            time: new Date().toLocaleTimeString(),
-                            qr: decodedText,
-                            userName,
-                            status,
-                            message,
-                            error: ""
-                          }, ...prev]);
-                        } catch (err) {
-                          setScanResult(null);
-                          error = err.response?.data?.message || "Access Denied";
-                          setModalMessage(error);
-                          setModalOpen(true);
-                          setScanError(error);
-                          setScanHistory(prev => [{
-                            time: new Date().toLocaleTimeString(),
-                            qr: decodedText,
-                            userName: "N/A",
-                            status: "Denied",
-                            message: "",
-                            error
-                          }, ...prev]);
-                        }
-                      } else {
-                        error = "Invalid QR code format.";
-                        setScanResult(null);
-                        setModalMessage(error);
-                        setModalOpen(true);
-                        setScanError(error);
-                        setScanHistory(prev => [{
-                          time: new Date().toLocaleTimeString(),
-                          qr: decodedText,
-                          userName: "N/A",
-                          status: "Denied",
-                          message: "",
-                          error
-                        }, ...prev]);
-                      }
-                    },
-                    (errorMessage) => {
-                      setScanError(errorMessage);
-                    }
-                  );
-                }
-              }, 300);
+              setScannerReady(true); // Resume scanning after closing modal
             }}
           >OK</button>
         </div>
