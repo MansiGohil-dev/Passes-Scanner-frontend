@@ -10,6 +10,7 @@ function ScanUserPass() {
   const [token, setToken] = useState("");
   const [scanResult, setScanResult] = useState(null);
   const [scanError, setScanError] = useState("");
+  const [scanHistory, setScanHistory] = useState([]);
   const [scanning, setScanning] = useState(false);
   const [employeeMobile, setEmployeeMobile] = useState("");
   const [cameraError, setCameraError] = useState("");
@@ -30,27 +31,47 @@ function ScanUserPass() {
         setToken(decodedText);
         // Extract the pass/user ID from the scanned QR code URL
         const match = decodedText.match(/shared-pass\/(\w+)/);
+        let result = null;
+        let error = "";
+        let userName = "N/A";
+        let status = "Denied";
         if (match) {
           const passId = match[1];
           try {
             const response = await axios.get(`${API_BASE_URL}/api/passes/${passId}`, {
               withCredentials: true // send cookies/session if needed
             });
-            setScanResult(response.data); // Store user details
+            result = response.data;
+            userName = result.name || result.username || result.userName || result.fullName || 'N/A';
+            status = "Allowed";
+            setScanResult(result);
             setScanError("");
-          } catch (error) {
-            setScanResult(null);
-            // 403 or 401 means forbidden/unauthorized
-            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
-              setScanError("Access Denied");
+          } catch (err) {
+            result = null;
+            if (err.response && (err.response.status === 403 || err.response.status === 401)) {
+              error = "Access Denied";
             } else {
-              setScanError("User details not found or error fetching details.");
+              error = "User details not found or error fetching details.";
             }
+            setScanResult(null);
+            setScanError(error);
           }
         } else {
+          error = "Invalid QR code format.";
           setScanResult(null);
-          setScanError("Invalid QR code format.");
+          setScanError(error);
         }
+        // Add to scan history
+        setScanHistory(prev => [
+          {
+            time: new Date().toLocaleTimeString(),
+            qr: decodedText,
+            userName,
+            status: error === "" ? status : "Denied",
+            error
+          },
+          ...prev
+        ]);
       },
       (errorMessage) => {
         setScanError(errorMessage);
@@ -78,19 +99,29 @@ function ScanUserPass() {
       {/* QR Scanner will render here */}
       <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
       {/* Result and access messages */}
-      {scanResult && !scanError && (
-        <div style={{ marginTop: 20, color: 'green', textAlign: 'center' }}>
-          <h3>Access Allowed</h3>
-          <pre style={{ textAlign: 'left', background: '#f0f0f0', padding: 10, borderRadius: 4 }}>{JSON.stringify(scanResult, null, 2)}</pre>
+      {/* Scan history */}
+      {scanHistory.length > 0 && (
+        <div style={{ marginTop: 30 }}>
+          <h3 style={{ textAlign: 'center' }}>Scan History</h3>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {scanHistory.map((entry, idx) => (
+              <li key={idx} style={{
+                background: entry.status === 'Allowed' ? '#e0ffe0' : '#ffe0e0',
+                color: entry.status === 'Allowed' ? 'green' : 'red',
+                margin: '10px 0',
+                padding: 10,
+                borderRadius: 6
+              }}>
+                <strong>{entry.time}:</strong> {entry.status === 'Allowed' ? 'Access Allowed' : 'Access Denied'}
+                <br />User Name: <span style={{ fontWeight: 600 }}>{entry.userName}</span>
+                <br />QR: <span style={{ color: '#888', fontSize: 12 }}>{entry.qr}</span>
+                {entry.error && entry.status !== 'Allowed' && (
+                  <div style={{ color: 'orange', fontSize: 12 }}>{entry.error}</div>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
-      {scanError === 'Access Denied' && (
-        <div style={{ marginTop: 20, color: 'red', textAlign: 'center' }}>
-          <h3>Access Denied</h3>
-        </div>
-      )}
-      {scanError && scanError !== 'Access Denied' && (
-        <div style={{ marginTop: 20, color: 'orange', textAlign: 'center' }}>{scanError}</div>
       )}
     </div>
   );
