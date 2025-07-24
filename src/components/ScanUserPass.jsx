@@ -50,6 +50,14 @@ function ScanUserPass() {
   }, [navigate]);
 
   // Handle image file upload for QR scanning
+
+  // Render the QR scanner container
+  return (
+    <div>
+      {/* QR Scanner will render here */}
+      <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
+    </div>
+  );
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
