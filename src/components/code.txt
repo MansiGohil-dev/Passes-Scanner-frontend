@@ -159,7 +159,29 @@ function ScanUserPass() {
       <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
       {/* Result and access messages */}
       {/* Scan history */}
-      
+      {scanHistory.length > 0 && (
+        <div style={{ marginTop: 30 }}>
+          <h3 style={{ textAlign: 'center' }}>Scan History</h3>
+          <ul style={{ listStyle: 'none', padding: 0 }}>
+            {scanHistory.map((entry, idx) => (
+              <li key={idx} style={{
+                background: entry.status === 'Allowed' ? '#e0ffe0' : '#ffe0e0',
+                color: entry.status === 'Allowed' ? 'green' : 'red',
+                margin: '10px 0',
+                padding: 10,
+                borderRadius: 6
+              }}>
+                <strong>{entry.time}:</strong> {entry.status === 'Allowed' ? 'Access Allowed' : 'Access Denied'}
+                <br />User Name: <span style={{ fontWeight: 600 }}>{entry.userName}</span>
+                <br />QR: <span style={{ color: '#888', fontSize: 12 }}>{entry.qr}</span>
+                {entry.error && entry.status !== 'Allowed' && (
+                  <div style={{ color: 'orange', fontSize: 12 }}>{entry.error}</div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
   const handleImageUpload = (event) => {
