@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { QrScanner } from '@yudiel/react-qr-scanner';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useNavigate } from 'react-router-dom';
 import 'webrtc-adapter';
 
@@ -17,6 +17,28 @@ function ScanUserPass() {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [cameraReady, setCameraReady] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // QR Scanner setup using html5-qrcode
+    const scanner = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: 250 },
+      false
+    );
+    scanner.render(
+      (decodedText, decodedResult) => {
+        // handle success
+        setToken(decodedText);
+        alert("QR Code: " + decodedText);
+      },
+      (errorMessage) => {
+        // handle error (optional)
+      }
+    );
+    return () => {
+      scanner.clear();
+    };
+  }, []);
 
   useEffect(() => {
     const mobile = sessionStorage.getItem('employeeMobile');
