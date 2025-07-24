@@ -26,13 +26,34 @@ function ScanUserPass() {
       false
     );
     scanner.render(
-      (decodedText, decodedResult) => {
-        // handle success
+      async (decodedText, decodedResult) => {
         setToken(decodedText);
-        alert("QR Code: " + decodedText);
+        // Extract the pass/user ID from the scanned QR code URL
+        const match = decodedText.match(/shared-pass\/(\w+)/);
+        if (match) {
+          const passId = match[1];
+          try {
+            const response = await axios.get(`${API_BASE_URL}/api/passes/${passId}`, {
+              withCredentials: true // send cookies/session if needed
+            });
+            setScanResult(response.data); // Store user details
+            setScanError("");
+          } catch (error) {
+            setScanResult(null);
+            // 403 or 401 means forbidden/unauthorized
+            if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+              setScanError("Access Denied");
+            } else {
+              setScanError("User details not found or error fetching details.");
+            }
+          }
+        } else {
+          setScanResult(null);
+          setScanError("Invalid QR code format.");
+        }
       },
       (errorMessage) => {
-        // handle error (optional)
+        setScanError(errorMessage);
       }
     );
     return () => {
@@ -56,6 +77,21 @@ function ScanUserPass() {
     <div>
       {/* QR Scanner will render here */}
       <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
+      {/* Result and access messages */}
+      {scanResult && !scanError && (
+        <div style={{ marginTop: 20, color: 'green', textAlign: 'center' }}>
+          <h3>Access Allowed</h3>
+          <pre style={{ textAlign: 'left', background: '#f0f0f0', padding: 10, borderRadius: 4 }}>{JSON.stringify(scanResult, null, 2)}</pre>
+        </div>
+      )}
+      {scanError === 'Access Denied' && (
+        <div style={{ marginTop: 20, color: 'red', textAlign: 'center' }}>
+          <h3>Access Denied</h3>
+        </div>
+      )}
+      {scanError && scanError !== 'Access Denied' && (
+        <div style={{ marginTop: 20, color: 'orange', textAlign: 'center' }}>{scanError}</div>
+      )}
     </div>
   );
   const handleImageUpload = (event) => {
