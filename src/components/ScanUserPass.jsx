@@ -237,8 +237,15 @@ function ScanUserPass() {
     });
       setScanResult(res.data);
     } catch (err) {
-      setScanResult(null);
-      setScanError(err.response?.data?.message || "Access Denied");
+      const errMsg = err.response?.data?.message || "Access Denied";
+      if (errMsg.includes("QR expired")) {
+        setScanResult({ name: '', allowed: false, expired: true });
+        setModalMessage(errMsg);
+        setModalOpen(true);
+      } else {
+        setScanResult(null);
+        setScanError(errMsg);
+      }
     }
     setScanning(false);
   };
