@@ -161,6 +161,23 @@ function ShareExtraPass({ token, total, remaining }) {
         {successMsg && <div className="text-green-600 text-sm mb-2 text-center font-semibold">{successMsg}</div>}
 
       </div>
+      {/* List of shared links with QR codes */}
+      {sharedLinks.length > 0 && (
+        <div className="mt-6 bg-gray-50 rounded-lg shadow-inner p-4">
+          <h3 className="text-lg font-bold text-green-800 mb-2">Shared Passes</h3>
+          <ul className="space-y-4">
+            {sharedLinks.map((item, idx) => (
+              <li key={idx} className="flex items-center gap-4 bg-white p-3 rounded shadow">
+                <QRCodeSVG value={item.link} size={64} className="border rounded" />
+                <div>
+                  <div className="font-mono text-blue-700 text-sm">{item.link}</div>
+                  <div className="text-gray-700 text-xs">Mobile: {item.mobile}</div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
