@@ -629,7 +629,7 @@ function ScanUserPass() {
                   );
                 }
               }, 300);
-            }
+            }}
           >OK</button>
         </div>
       </div>
