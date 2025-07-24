@@ -31,14 +31,27 @@ export default defineConfig({
     allowedHosts: [
       'myqrapp.loca.lt',
       '.loca.lt' // Allow any loca.lt subdomain
-    ]
+    ],
     // Removed HTTPS for now - using localtunnel for HTTPS
+    // Handle SPA routing in development
+    historyApiFallback: true
   },
   build: {
     // Ensure _redirects file is copied to dist folder
     rollupOptions: {
       input: {
         main: './index.html'
+      }
+    },
+    // Generate additional files for SPA routing
+    generateBundle(options, bundle) {
+      // Create a copy of index.html as 404.html for SPA routing fallback
+      if (bundle['index.html']) {
+        this.emitFile({
+          type: 'asset',
+          fileName: '404.html',
+          source: bundle['index.html'].source
+        });
       }
     }
   }
