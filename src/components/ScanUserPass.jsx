@@ -41,6 +41,7 @@ function ScanUserPass() {
         // Prevent duplicate scan
         if (scannedQrs.includes(decodedText)) {
           setModalMessage("QR Expired: This QR code has already been scanned.");
+          setScanResult({ name: '', allowed: false, expired: true }); // Mark as expired for popup
           setModalOpen(true);
           // Pause scanner after scan
           if (scannerRef.current) {
@@ -66,8 +67,8 @@ function ScanUserPass() {
             userName = name || "N/A";
             status = allowed ? "Allowed" : "Denied";
             message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
-            setScanResult({ name: userName, message, allowed });
-            setModalMessage(message);
+            setScanResult({ name: userName, allowed, message });
+            setModalMessage(""); // We'll show details in the popup
             setModalOpen(true);
             // Add QR to scanned list
             setScannedQrs(prev => [...prev, decodedText]);
@@ -77,18 +78,21 @@ function ScanUserPass() {
               setScannerReady(false);
             }
             setScanError("");
-            setScanHistory(prev => [{
-              time: new Date().toLocaleTimeString(),
-              qr: decodedText,
-              userName,
-              status,
-              message,
-              error: ""
-            }, ...prev]);
+            // Only add to history if not already scanned
+            setScanHistory(prev => {
+              if (prev.some(item => item.qr === decodedText)) return prev;
+              return [{
+                time: new Date().toLocaleTimeString(),
+                qr: decodedText,
+                userName,
+                status,
+                message,
+                error: ""
+              }, ...prev];
+            });
           } catch (err) {
-            setScanResult(null);
-            error = err.response?.data?.message || "Access Denied";
-            setModalMessage(error);
+            setScanResult({ name: "N/A", allowed: false, message: error });
+            setModalMessage(""); // Show details in popup
             setModalOpen(true);
             // Pause scanner after scan
             if (scannerRef.current) {
@@ -96,14 +100,18 @@ function ScanUserPass() {
               setScannerReady(false);
             }
             setScanError(error);
-            setScanHistory(prev => [{
-              time: new Date().toLocaleTimeString(),
-              qr: decodedText,
-              userName: "N/A",
-              status: "Denied",
-              message: "",
-              error
-            }, ...prev]);
+            // Only add to history if not already scanned
+            setScanHistory(prev => {
+              if (prev.some(item => item.qr === decodedText)) return prev;
+              return [{
+                time: new Date().toLocaleTimeString(),
+                qr: decodedText,
+                userName: "N/A",
+                status: "Denied",
+                message: "",
+                error
+              }, ...prev];
+            });
           }
         } else {
           error = "Invalid QR code format.";
@@ -575,7 +583,21 @@ function ScanUserPass() {
         background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
       }}>
         <div style={{ background: '#fff', padding: 32, borderRadius: 8, minWidth: 300, textAlign: 'center', boxShadow: '0 2px 10px #0003' }}>
-          <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{modalMessage}</div>
+          {scanResult && scanResult.expired ? (
+            <>
+              <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>QR Expired</div>
+              <div style={{ marginBottom: 12 }}>This QR code has already been scanned.</div>
+            </>
+          ) : scanResult ? (
+            <>
+              <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>Scan Result</div>
+              <div style={{ marginBottom: 8 }}><b>User Name:</b> {scanResult.name || 'N/A'}</div>
+              <div style={{ marginBottom: 8 }}><b>Access:</b> {scanResult.allowed ? 'Allowed' : 'Denied'}</div>
+              {scanResult.message && <div style={{ marginBottom: 8 }}>{scanResult.message}</div>}
+            </>
+          ) : (
+            <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{modalMessage}</div>
+          )}
           <button
             style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
             onClick={() => {
