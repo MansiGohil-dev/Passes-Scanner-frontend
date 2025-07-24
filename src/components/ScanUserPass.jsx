@@ -183,10 +183,10 @@ function ScanUserPass() {
               style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
               onClick={() => {
                 setModalOpen(false);
-                setScanResult(null);
-                setScanError("");
-                setScannerReady(false);
-                setTimeout(() => setScannerReady(true), 200);
+                setShowScanner(true); // Ensure scanner area is visible
+                setScannerReady(true); // Resume scanning after closing modal
+                setScanResult(null); // Clear previous scan result
+                setScanError(""); // Clear error
               }}
             >OK</button>
           </div>
@@ -612,9 +612,10 @@ function ScanUserPass() {
             style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
             onClick={() => {
               setModalOpen(false);
-              setScannerReady(true); // Resume scanning after closing modal
               setScanResult(null); // Clear previous scan result
               setScanError(""); // Clear error
+              // Redirect to scanner camera route without refreshing
+              navigate('/employee-scan'); // Change to your actual scanner route if different
             }}
           >OK</button>
         </div>
