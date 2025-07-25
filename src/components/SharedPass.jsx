@@ -135,7 +135,7 @@ function SharedPass() {
         {/* Pass Image (if available) */}
         {info.imageUrl && (
           <img
-            src={`${API_BASE_URL.replace(/\/api.*/, '')}/${info.imageUrl.replace(/\\/g, '/')}`
+            src={`${API_BASE_URL.replace(/\/api.*/, '')}/${info.imageUrl.replace(/\\/g, '/')}`}
             alt="Pass"
             className="mx-auto mb-4 rounded shadow max-h-48"
           />
