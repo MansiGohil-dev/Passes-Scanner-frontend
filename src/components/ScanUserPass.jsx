@@ -716,8 +716,12 @@ function ScanUserPass() {
                   setModalOpen(false);
                   setScanResult(null);
                   setScanError("");
-                  setShowScanner(true);
-                  setScannerReady(true);
+                  setShowScanner(false);
+                  setScannerReady(false);
+                  setTimeout(() => {
+                    setShowScanner(true);
+                    setScannerReady(true);
+                  }, 0);
                 }}
               >Close</button>
             </>
