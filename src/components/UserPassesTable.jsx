@@ -10,15 +10,8 @@ function UserPassesTable({ API_BASE_URL }) {
     const fetchPasses = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`${API_BASE_URL}/api/passes`);
-        // If response is an array of passes
-        if (Array.isArray(res.data)) {
-          setPasses(res.data);
-        } else if (res.data && res.data.passes) {
-          setPasses(res.data.passes);
-        } else {
-          setPasses([]);
-        }
+        const res = await axios.get(`${API_BASE_URL}/api/passes/sales`);
+        setPasses(res.data);
       } catch (err) {
         setError("Failed to fetch user passes");
         setPasses([]);
@@ -48,7 +41,7 @@ function UserPassesTable({ API_BASE_URL }) {
           ) : (
             passes.map((u, idx) => (
               <tr
-                key={u._id || idx}
+                key={u.token || idx}
                 className={`transition-all duration-200 ${idx % 2 === 0 ? 'bg-blue-50' : 'bg-white'} hover:bg-blue-100 hover:shadow-lg`}
               >
                 <td className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-gray-800">{u.name || '-'}</td>
