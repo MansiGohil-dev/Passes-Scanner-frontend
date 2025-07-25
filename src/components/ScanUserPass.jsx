@@ -183,12 +183,42 @@ function ScanUserPass() {
             )}
             <button
               style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
-              onClick={() => {
+              onClick={async () => {
                 setModalOpen(false);
-                setShowScanner(true); // Ensure scanner area is visible
-                setScannerReady(true); // Resume scanning after closing modal
-                setScanResult(null); // Clear previous scan result
-                setScanError(""); // Clear error
+                if (scanResult && scanResult.allowed && scanResult.passId) {
+                  // Step 2: Mark as used only after user confirms
+                  try {
+                    await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
+                      employeeId: sessionStorage.getItem('employeeId'),
+                      mobile: sessionStorage.getItem('employeeMobile')
+                    });
+                    setScannedQrs(prev => [...prev, scanResult.qr]);
+                    setScanHistory(prev => [{
+                      time: new Date().toLocaleTimeString(),
+                      qr: scanResult.qr,
+                      userName: scanResult.name,
+                      status: 'Allowed',
+                      message: scanResult.message,
+                      error: ''
+                    }, ...prev]);
+                  } catch (err) {
+                    setScanError('Failed to mark as used. Try again.');
+                  }
+                } else if (scanResult && scanResult.qr) {
+                  // Denied or expired, add to history
+                  setScanHistory(prev => [{
+                    time: new Date().toLocaleTimeString(),
+                    qr: scanResult.qr,
+                    userName: scanResult.name || 'N/A',
+                    status: 'Denied',
+                    message: scanResult.message || '',
+                    error: scanResult.expired ? 'Expired' : ''
+                  }, ...prev]);
+                }
+                setShowScanner(true);
+                setScannerReady(true);
+                setScanResult(null);
+                setScanError("");
               }}
             >OK</button>
           </div>

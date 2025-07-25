@@ -151,7 +151,7 @@ function SharedPass() {
         <div className="mb-2 text-lg">Name: <span className="font-bold">{info.name}</span></div>
         <div className="mb-2 text-lg">Mobile: <span className="font-mono">{info.mobile}</span></div>
         <div className="mb-2 text-lg">Number of Passes: <span className="font-bold">{info.count}</span></div>
-        <div className="mb-2 text-lg">Passes you can share: <span className="font-bold">{info.remaining}</span></div>
+        <div className="mb-2 text-lg">Remaining: <span className="font-bold">{info.remaining}</span></div>
         {/* Section for sharing extra passes */}
         {info.remaining > 0 && (
           <div className="mb-4 p-4 bg-gray-50 rounded-lg shadow-inner">
