@@ -19,8 +19,7 @@ function ShareExtraPass({ token, total, remaining }) {
   const [numPasses, setNumPasses] = useState(1);
 
   // Use backend API base URL
-  const API_BASE_URL = 'http://192.168.1.12:5000';
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/employees`).then(res => res.json()).then(() => {}).catch(() => {});
   }, []);
