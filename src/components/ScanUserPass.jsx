@@ -623,9 +623,14 @@ function ScanUserPass() {
               setModalOpen(false);
               setScanResult(null); // Clear previous scan result
               setScanError(""); // Clear error
-              setShowScanner(true); // Open camera scanner again
-              setCameraReady(true); // Mark camera as ready
-              setScannerReady(true); // Ensure scannerReady is true to trigger scanner
+              setTimeout(() => {
+                setScannerReady(false); // Force re-mount
+                setShowScanner(false);
+                setTimeout(() => {
+                  setShowScanner(true);
+                  setScannerReady(true);
+                }, 100);
+              }, 100);
             }}
           >OK</button>
         </div>
