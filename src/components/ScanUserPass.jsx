@@ -1042,6 +1042,13 @@ function ScanUserPass() {
               {showImageUpload ? 'Close Photo Upload' : 'Take Photo / Upload Image'}
             </button>
           </div>
+          <div id="reader" style={{ 
+            width: '100%', 
+            height: showScanner && cameraReady ? '300px' : '0', 
+            borderRadius: '8px', 
+            overflow: 'hidden', 
+            display: modalOpen ? 'none' : (showScanner && cameraReady ? 'block' : 'none') 
+          }}></div>
           {showScanner && cameraReady && (
             <div className="border-2 border-dashed border-blue-300 p-4 rounded-lg mb-4">
               <div className="text-center mb-2">
@@ -1049,7 +1056,6 @@ function ScanUserPass() {
                   🟢 Camera Active - Ready to Scan
                 </div>
               </div>
-              <div id="reader" style={{ width: '100%', height: '300px', borderRadius: '8px', overflow: 'hidden' }}></div>
               <div className="text-xs text-green-600 mt-2 text-center font-medium">
                 📱 Point your camera at the QR code to scan
               </div>
