@@ -43,19 +43,19 @@
 //       const res = await axios.get(`${API_BASE_URL}/api/passes/summary`);
 //       setSummary(res.data);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   setImage(file);
+  //   setImagePreview(URL.createObjectURL(file));
+  // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
-    const formData = new FormData();
-    formData.append('count', count);
-    if (image) formData.append('image', image);
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   setMessage('');
+  //   const formData = new FormData();
+  //   formData.append('count', count);
+  //   if (image) formData.append('image', image);
 //       setCurrentPass(res.data);
 //       setCount(res.data.count);
 //       setImagePreview(getImageUrl(res.data.imageUrl));
