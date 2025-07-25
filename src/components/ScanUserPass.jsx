@@ -57,15 +57,18 @@ useEffect(() => {
 }, [scannerReady, showScanner, modalOpen]);
 
   useEffect(() => {
-    const mobile = sessionStorage.getItem('employeeMobile');
-    const id = sessionStorage.getItem('employeeId');
-    if (!mobile || !id) {
-      navigate('/elogin');
-    } else {
-      setEmployeeMobile(mobile);
-      setEmployeeId(id);
-    }
-  }, [navigate]);
+  const mobile = sessionStorage.getItem('employeeMobile');
+  const id = sessionStorage.getItem('employeeId');
+  if (!mobile || !id) {
+    navigate('/elogin');
+  } else {
+    setEmployeeMobile(mobile);
+    setEmployeeId(id);
+    // Auto open camera scanner after successful login
+    setShowScanner(true);
+    setScannerReady(true);
+  }
+}, [navigate]);
 
   // Handle image file upload for QR scanning
 
