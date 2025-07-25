@@ -29,19 +29,92 @@ function ScanUserPass() {
   const scannerRef = React.useRef(null);
   const [scannerReady, setScannerReady] = useState(false);
 
-  const readerRef = useRef(null);
-
-useEffect(() => {
-  if (scannerReady && showScanner && !modalOpen && readerRef.current) {
+  useEffect(() => {
+    // QR Scanner setup using html5-qrcode
+    if (scannerReady) return; // Prevent re-initialization
     scannerRef.current = new Html5QrcodeScanner(
-      readerRef.current.id,
+      "reader",
       { fps: 10, qrbox: 250 },
       false
     );
     scannerRef.current.render(
       async (decodedText, decodedResult) => {
         setToken(decodedText);
-        // ... rest of your scan handler ...
+        // Prevent duplicate scan
+        if (scannedQrs.includes(decodedText)) {
+          setModalMessage("QR Expired: This QR code has already been scanned.");
+          setScanResult({ name: '', allowed: false, expired: true }); // Mark as expired for popup
+          setModalOpen(true);
+          // Pause scanner after scan
+          if (scannerRef.current) {
+            scannerRef.current.clear();
+            setScannerReady(false);
+          }
+          return; // Ensure no further code is executed, preventing double modal
+        }
+        // Extract the pass/user ID from the scanned QR code URL
+        const match = decodedText.match(/shared-pass\/(\w+)/);
+        let userName = "N/A";
+        let status = "Denied";
+        let message = "";
+        let error = "";
+        if (match) {
+          const passId = match[1];
+          try {
+            // Step 1: Only check access, do not mark as used
+            const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
+              employeeId: sessionStorage.getItem('employeeId'),
+              mobile: sessionStorage.getItem('employeeMobile')
+            });
+            const { name, message: backendMessage, allowed, used } = response.data;
+            userName = name || "N/A";
+            status = allowed && !used ? "Allowed" : "Denied";
+            message = backendMessage || (allowed && !used ? "Entry allowed" : (used ? "Pass already used." : "Access Denied"));
+            setScanResult({ name: userName, allowed: allowed && !used, message, passId, qr: decodedText, used });
+            setModalMessage(""); // We'll show details in the popup
+            setModalOpen(true);
+            // Pause scanner after scan
+            if (scannerRef.current) {
+              scannerRef.current.clear();
+              setScannerReady(false);
+            }
+            setScanError("");
+          } catch (err) {
+            setScanResult({ name: "N/A", allowed: false, message: error });
+            setModalMessage(""); // Show details in popup
+            setModalOpen(true);
+            // Pause scanner after scan
+            if (scannerRef.current) {
+              scannerRef.current.clear();
+              setScannerReady(false);
+            }
+            setScanError(error);
+            // Only add to history if not already scanned
+            setScanHistory(prev => {
+              if (prev.some(item => item.qr === decodedText)) return prev;
+              return [{
+                time: new Date().toLocaleTimeString(),
+                qr: decodedText,
+                userName: "N/A",
+                status: "Denied",
+                message: "",
+                error
+              }, ...prev];
+            });
+          }
+        } else {
+          error = "Invalid QR code format.";
+          setScanResult(null);
+          setScanError(error);
+          setScanHistory(prev => [{
+            time: new Date().toLocaleTimeString(),
+            qr: decodedText,
+            userName: "N/A",
+            status: "Denied",
+            message: "",
+            error
+          }, ...prev]);
+        }
       },
       (errorMessage) => {
         setScanError(errorMessage);
@@ -53,22 +126,18 @@ useEffect(() => {
         scannerRef.current = null;
       }
     };
-  }
-}, [scannerReady, showScanner, modalOpen]);
+  }, [scannerReady]);
 
   useEffect(() => {
-  const mobile = sessionStorage.getItem('employeeMobile');
-  const id = sessionStorage.getItem('employeeId');
-  if (!mobile || !id) {
-    navigate('/elogin');
-  } else {
-    setEmployeeMobile(mobile);
-    setEmployeeId(id);
-    // Auto open camera scanner after successful login
-    setShowScanner(true);
-    setScannerReady(true);
-  }
-}, [navigate]);
+    const mobile = sessionStorage.getItem('employeeMobile');
+    const id = sessionStorage.getItem('employeeId');
+    if (!mobile || !id) {
+      navigate('/elogin');
+    } else {
+      setEmployeeMobile(mobile);
+      setEmployeeId(id);
+    }
+  }, [navigate]);
 
   // Handle image file upload for QR scanning
 
@@ -76,9 +145,9 @@ useEffect(() => {
   return (
     <div>
       {/* QR Scanner will render here */}
-{showScanner && !modalOpen && (
-  <div id="reader" ref={readerRef} style={{ width: 300, margin: '0 auto' }}></div>
-)}
+      {!modalOpen && (
+        <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
+      )}
       {/* Result and access messages */}
       {modalOpen && (
         <div style={{
@@ -132,45 +201,45 @@ useEffect(() => {
                style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
                disabled={scanning}
                onClick={async () => {
-  setModalOpen(false);
-  if (scanResult && scanResult.allowed && scanResult.passId && !scanResult.used) {
-    setScanning(true);
-    try {
-      await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
-        employeeId: sessionStorage.getItem('employeeId'),
-        mobile: sessionStorage.getItem('employeeMobile')
-      });
-      setScannedQrs(prev => [...prev, scanResult.qr]);
-      setScanHistory(prev => [{
-        time: new Date().toLocaleTimeString(),
-        qr: scanResult.qr,
-        userName: scanResult.name,
-        status: 'Allowed',
-        message: scanResult.message,
-        error: ''
-      }, ...prev]);
-      setModalMessage('Pass marked as used successfully!');
-    } catch (err) {
-      setScanError('Failed to mark as used. Try again.');
-      setModalMessage('Failed to mark as used. Try again.');
-    }
-    setScanning(false);
-  } else if (scanResult && scanResult.qr) {
-    setScanHistory(prev => [{
-      time: new Date().toLocaleTimeString(),
-      qr: scanResult.qr,
-      userName: scanResult.name || 'N/A',
-      status: 'Denied',
-      message: scanResult.message || '',
-      error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
-    }, ...prev]);
-  }
-  setShowScanner(true);
-  setScannerReady(false);
-  setTimeout(() => setScannerReady(true), 100);
-  setScanResult(null);
-  setScanError("");
-}}
+                 setModalOpen(false);
+                 if (scanResult && scanResult.allowed && scanResult.passId && !scanResult.used) {
+                   setScanning(true);
+                   try {
+                     await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
+                       employeeId: sessionStorage.getItem('employeeId'),
+                       mobile: sessionStorage.getItem('employeeMobile')
+                     });
+                     setScannedQrs(prev => [...prev, scanResult.qr]);
+                     setScanHistory(prev => [{
+                       time: new Date().toLocaleTimeString(),
+                       qr: scanResult.qr,
+                       userName: scanResult.name,
+                       status: 'Allowed',
+                       message: scanResult.message,
+                       error: ''
+                     }, ...prev]);
+                     setModalMessage('Pass marked as used successfully!');
+                   } catch (err) {
+                     setScanError('Failed to mark as used. Try again.');
+                     setModalMessage('Failed to mark as used. Try again.');
+                   }
+                   setScanning(false);
+                 } else if (scanResult && scanResult.qr) {
+                   // Denied or expired, add to history
+                   setScanHistory(prev => [{
+                     time: new Date().toLocaleTimeString(),
+                     qr: scanResult.qr,
+                     userName: scanResult.name || 'N/A',
+                     status: 'Denied',
+                     message: scanResult.message || '',
+                     error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
+                   }, ...prev]);
+                 }
+                 setShowScanner(true);
+                 setScannerReady(true);
+                 setScanResult(null);
+                 setScanError("");
+               }}
              >{scanning ? 'Processing...' : 'OK'}</button>
              {modalMessage && (
                <div style={{ marginTop: 10, color: modalMessage.includes('success') ? 'green' : 'red', fontWeight: 500 }}>{modalMessage}</div>
@@ -647,14 +716,8 @@ useEffect(() => {
                   setModalOpen(false);
                   setScanResult(null);
                   setScanError("");
-                  setTimeout(() => {
-                    setScannerReady(false);
-                    setShowScanner(false);
-                    setTimeout(() => {
-                      setShowScanner(true);
-                      setScannerReady(true);
-                    }, 100);
-                  }, 100);
+                  setShowScanner(true);
+                  setScannerReady(true);
                 }}
               >Close</button>
             </>
@@ -675,14 +738,8 @@ useEffect(() => {
                 }
                 setScanResult(null);
                 setScanError("");
-                setTimeout(() => {
-                  setScannerReady(false);
-                  setShowScanner(false);
-                  setTimeout(() => {
-                    setShowScanner(true);
-                    setScannerReady(true);
-                  }, 100);
-                }, 100);
+                setShowScanner(true);
+                setScannerReady(true);
               }}
             >Close</button>
           )}
