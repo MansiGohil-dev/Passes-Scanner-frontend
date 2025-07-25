@@ -169,45 +169,52 @@ function ScanUserPass() {
               <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{modalMessage}</div>
             )}
             <button
-              style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
-              onClick={async () => {
-                setModalOpen(false);
-                if (scanResult && scanResult.allowed && scanResult.passId && !scanResult.used) {
-                  // Step 2: Mark as used only after user confirms
-                  try {
-                    await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
-                      employeeId: sessionStorage.getItem('employeeId'),
-                      mobile: sessionStorage.getItem('employeeMobile')
-                    });
-                    setScannedQrs(prev => [...prev, scanResult.qr]);
-                    setScanHistory(prev => [{
-                      time: new Date().toLocaleTimeString(),
-                      qr: scanResult.qr,
-                      userName: scanResult.name,
-                      status: 'Allowed',
-                      message: scanResult.message,
-                      error: ''
-                    }, ...prev]);
-                  } catch (err) {
-                    setScanError('Failed to mark as used. Try again.');
-                  }
-                } else if (scanResult && scanResult.qr) {
-                  // Denied or expired, add to history
-                  setScanHistory(prev => [{
-                    time: new Date().toLocaleTimeString(),
-                    qr: scanResult.qr,
-                    userName: scanResult.name || 'N/A',
-                    status: 'Denied',
-                    message: scanResult.message || '',
-                    error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
-                  }, ...prev]);
-                }
-                setShowScanner(true);
-                setScannerReady(true);
-                setScanResult(null);
-                setScanError("");
-              }}
-            >OK</button>
+               style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
+               disabled={scanning}
+               onClick={async () => {
+                 setModalOpen(false);
+                 if (scanResult && scanResult.allowed && scanResult.passId && !scanResult.used) {
+                   setScanning(true);
+                   try {
+                     await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
+                       employeeId: sessionStorage.getItem('employeeId'),
+                       mobile: sessionStorage.getItem('employeeMobile')
+                     });
+                     setScannedQrs(prev => [...prev, scanResult.qr]);
+                     setScanHistory(prev => [{
+                       time: new Date().toLocaleTimeString(),
+                       qr: scanResult.qr,
+                       userName: scanResult.name,
+                       status: 'Allowed',
+                       message: scanResult.message,
+                       error: ''
+                     }, ...prev]);
+                     setModalMessage('Pass marked as used successfully!');
+                   } catch (err) {
+                     setScanError('Failed to mark as used. Try again.');
+                     setModalMessage('Failed to mark as used. Try again.');
+                   }
+                   setScanning(false);
+                 } else if (scanResult && scanResult.qr) {
+                   // Denied or expired, add to history
+                   setScanHistory(prev => [{
+                     time: new Date().toLocaleTimeString(),
+                     qr: scanResult.qr,
+                     userName: scanResult.name || 'N/A',
+                     status: 'Denied',
+                     message: scanResult.message || '',
+                     error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
+                   }, ...prev]);
+                 }
+                 setShowScanner(true);
+                 setScannerReady(true);
+                 setScanResult(null);
+                 setScanError("");
+               }}
+             >{scanning ? 'Processing...' : 'OK'}</button>
+             {modalMessage && (
+               <div style={{ marginTop: 10, color: modalMessage.includes('success') ? 'green' : 'red', fontWeight: 500 }}>{modalMessage}</div>
+             )}
           </div>
         </div>
       )}
