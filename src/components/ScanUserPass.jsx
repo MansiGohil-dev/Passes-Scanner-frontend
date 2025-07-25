@@ -64,11 +64,11 @@ function ScanUserPass() {
               employeeId: sessionStorage.getItem('employeeId'),
               mobile: sessionStorage.getItem('employeeMobile')
             });
-            const { name, message: backendMessage, allowed } = response.data;
+            const { name, message: backendMessage, allowed, used } = response.data;
             userName = name || "N/A";
-            status = allowed ? "Allowed" : "Denied";
-            message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
-            setScanResult({ name: userName, allowed, message, passId, qr: decodedText });
+            status = allowed && !used ? "Allowed" : "Denied";
+            message = backendMessage || (allowed && !used ? "Entry allowed" : (used ? "Pass already used." : "Access Denied"));
+            setScanResult({ name: userName, allowed: allowed && !used, message, passId, qr: decodedText, used });
             setModalMessage(""); // We'll show details in the popup
             setModalOpen(true);
             // Pause scanner after scan
@@ -172,7 +172,7 @@ function ScanUserPass() {
               style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
               onClick={async () => {
                 setModalOpen(false);
-                if (scanResult && scanResult.allowed && scanResult.passId) {
+                if (scanResult && scanResult.allowed && scanResult.passId && !scanResult.used) {
                   // Step 2: Mark as used only after user confirms
                   try {
                     await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
@@ -199,7 +199,7 @@ function ScanUserPass() {
                     userName: scanResult.name || 'N/A',
                     status: 'Denied',
                     message: scanResult.message || '',
-                    error: scanResult.expired ? 'Expired' : ''
+                    error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
                   }, ...prev]);
                 }
                 setShowScanner(true);
@@ -251,10 +251,20 @@ function ScanUserPass() {
     setScanning(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/api/passes/shared/${token}/scan`, {
-      employeeId: sessionStorage.getItem('employeeId'),
-      mobile: sessionStorage.getItem('employeeMobile')
-    });
-      setScanResult(res.data);
+        employeeId: sessionStorage.getItem('employeeId'),
+        mobile: sessionStorage.getItem('employeeMobile')
+      });
+      const { name, message, allowed, used } = res.data;
+      setScanResult({
+        name: name || '',
+        allowed: allowed && !used,
+        message: message || (allowed && !used ? 'Entry allowed' : (used ? 'Pass already used.' : 'Access Denied')),
+        passId: token,
+        qr: token,
+        used
+      });
+      setModalMessage("");
+      setModalOpen(true);
     } catch (err) {
       const errMsg = err.response?.data?.message || "Access Denied";
       if (errMsg.includes("QR expired")) {
