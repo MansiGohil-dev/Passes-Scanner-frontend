@@ -1,523 +1,5 @@
-// import React, { useEffect, useState } from "react";
-// import { getImageUrl } from '../utils/getImageUrl';
-// import axios from "axios";
-// import AdminSalesTable from "./AdminSalesTable";
+"use client"
 
-// function AdminDashboardPage() {
-//   const [showUserTable, setShowUserTable] = useState(false);
-//   const [summary, setSummary] = useState({ total: 0, available: 0, sold: 0 });
-//   const [image, setImage] = useState(null);
-//   const [imagePreview, setImagePreview] = useState("");
-//   const [count, setCount] = useState("");
-//   const [currentPass, setCurrentPass] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [editMode, setEditMode] = useState(false);
-//   const [message, setMessage] = useState("");
-//   const [showShareModal, setShowShareModal] = useState(false);
-//   const [shareMobile, setShareMobile] = useState("");
-//   const [shareName, setShareName] = useState("");
-//   const [shareCount, setShareCount] = useState(1);
-//   const [shareMessage, setShareMessage] = useState("");
-//   const [showOtpModal, setShowOtpModal] = useState(false);
-//   const [otp, setOtp] = useState("");
-//   const [otpSent, setOtpSent] = useState(false);
-//   const [otpError, setOtpError] = useState("");
-//   const [pendingShare, setPendingShare] = useState(null);
-//   const [demoOtp, setDemoOtp] = useState("");
-//   const [isDemoMode, setIsDemoMode] = useState(false);
-
-//   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-//   const openUserTable = () => setShowUserTable(true);
-//   const closeUserTable = () => setShowUserTable(false);
-
-//   useEffect(() => {
-//     fetchCurrentPass();
-//     fetchSummary();
-//   }, []);
-
-//   const fetchSummary = async () => {
-//     try {
-//       const res = await axios.get(`${API_BASE_URL}/api/passes/summary`);
-//       setSummary(res.data);
-//     } catch (err) {
-//       console.error("Error fetching summary:", err);
-//       setMessage("Failed to fetch summary");
-//     }
-//   };
-
-//   const fetchCurrentPass = async () => {
-//     try {
-//       setLoading(true);
-//       const res = await axios.get(`${API_BASE_URL}/api/passes`);
-//       setCurrentPass(res.data);
-//       setCount(res.data.count);
-//       setImagePreview(getImageUrl(res.data.imageUrl));
-//     } catch (err) {
-//       console.error("Error fetching pass:", err);
-//       setCurrentPass(null);
-//       setMessage("Failed to fetch current pass");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleImageChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       setImage(file);
-//       setImagePreview(URL.createObjectURL(file));
-//     }
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     setMessage("");
-//     const formData = new FormData();
-//     formData.append("count", count);
-//     if (image) formData.append("image", image);
-
-//     try {
-//       let res;
-//       if (currentPass && editMode) {
-//         res = await axios.put(`${API_BASE_URL}/api/passes`, formData, {
-//           headers: { "Content-Type": "multipart/form-data" },
-//         });
-//       } else {
-//         res = await axios.post(`${API_BASE_URL}/api/passes`, formData, {
-//           headers: { "Content-Type": "multipart/form-data" },
-//         });
-//       }
-//       setMessage("Pass saved successfully!");
-//       setEditMode(false);
-//       setImage(null);
-//       fetchCurrentPass();
-//     } catch (err) {
-//       console.error("Error saving pass:", err.response?.data || err.message);
-//       setMessage(err.response?.data?.message || "Error saving pass");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleEdit = () => {
-//     setEditMode(true);
-//     setImage(null);
-//     setMessage("");
-//     if (currentPass) {
-//       setCount(currentPass.count);
-//       setImagePreview(getImageUrl(currentPass.imageUrl));
-//     }
-//   };
-
-//   const handleShare = async (e) => {
-//     e.preventDefault();
-//     setShareMessage("");
-//     if (!shareName.trim()) {
-//       setShareMessage("Recipient name is required.");
-//       return;
-//     }
-//     if (!/^\d{10,15}$/.test(shareMobile.replace(/\D/g, ""))) {
-//       setShareMessage("Enter a valid mobile number.");
-//       return;
-//     }
-//     setPendingShare({ mobile: shareMobile, name: shareName, count: shareCount });
-//     setShowShareModal(false);
-//     setShowOtpModal(true);
-//     setOtpSent(false);
-//     setOtp("");
-//     setOtpError("");
-//     try {
-//       const response = await axios.post(`${API_BASE_URL}/api/passes/send-otp`, { mobile: shareMobile });
-//       setOtpSent(true);
-//       if (response.data.demo || response.data.smsError || response.data.otp) {
-//         setIsDemoMode(true);
-//         setDemoOtp(response.data.otp || "");
-//       } else {
-//         setIsDemoMode(false);
-//         setDemoOtp("");
-//       }
-//     } catch (err) {
-//       console.error("Error sending OTP:", err);
-//       setOtpError("Failed to send OTP. Please try again.");
-//     }
-//   };
-
-//   const handleVerifyOtp = async () => {
-//     setOtpError("");
-//     try {
-//       const verifyRes = await axios.post(`${API_BASE_URL}/api/passes/verify-otp`, {
-//         mobile: pendingShare.mobile,
-//         otp,
-//       });
-//       if (verifyRes.data.success) {
-//         const shareRes = await axios.post(`${API_BASE_URL}/api/passes/share`, {
-//           mobile: pendingShare.mobile,
-//           name: pendingShare.name,
-//           count: pendingShare.count,
-//         });
-//         const shareUrl = `${window.location.origin}/#/shared-pass/${shareRes.data.token}`;
-//         let cleanMobile = pendingShare.mobile.replace(/\D/g, "");
-//         if (cleanMobile.length === 10) {
-//           cleanMobile = "91" + cleanMobile;
-//         } else if (cleanMobile.length === 12 && cleanMobile.startsWith("91")) {
-//           // Already correct
-//         } else {
-//           setShareMessage("Invalid mobile number format for WhatsApp!");
-//           return;
-//         }
-//         const message = `You have been shared ${pendingShare.count} pass(es)! Click here to view your pass: ${shareUrl}`;
-//         const waLink = `https://wa.me/${cleanMobile}?text=${encodeURIComponent(message)}`;
-//         window.open(waLink, "_blank");
-//         setShareMessage(shareRes.data.message);
-//         setShowOtpModal(false);
-//         setShareMobile("");
-//         setShareName("");
-//         setShareCount(1);
-//         setPendingShare(null);
-//         fetchCurrentPass();
-//       } else {
-//         setOtpError("Invalid OTP");
-//       }
-//     } catch (err) {
-//       console.error("Error verifying OTP:", err);
-//       setOtpError(err.response?.data?.message || "OTP verification failed");
-//     }
-//   };
-
-//   return (
-//     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-200 flex flex-col items-center justify-center p-4">
-//       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-//         <h2 className="text-3xl font-bold text-center text-blue-700 mb-6">Admin Dashboard</h2>
-//         <div className="mb-4 text-center">
-//           <p><b>Total Passes:</b> {summary.total}</p>
-//           <p><b>Available Passes:</b> {summary.available}</p>
-//           <p><b>Sold Passes:</b> {summary.sold}</p>
-//         </div>
-//         {loading && <p className="text-blue-500 text-center">Loading...</p>}
-//         {currentPass && !editMode && (
-//           <div className="mb-6 text-center">
-//             <h3 className="text-xl font-semibold mb-2">Current Pass</h3>
-//             <img
-//               src={getImageUrl(currentPass.imageUrl)}
-//               alt="Pass"
-//               className="mx-auto mb-4 rounded shadow max-h-48"
-//               onError={(e) => console.error("Image load error:", e, "URL:", getImageUrl(currentPass.imageUrl))}
-//             />
-//             <p className="mb-2">Available Passes: <span className="font-bold">{currentPass.count}</span></p>
-//             <button
-//               onClick={handleEdit}
-//               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition mr-2"
-//             >
-//               Edit
-//             </button>
-//             <button
-//               onClick={() => setShowShareModal(true)}
-//               className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition"
-//             >
-//               Share Pass
-//             </button>
-//           </div>
-//         )}
-//         {(editMode || !currentPass) && (
-//           <form onSubmit={handleSubmit} className="space-y-6">
-//             <div>
-//               <label className="block font-medium mb-1">Pass Image:</label>
-//               <input
-//                 type="file"
-//                 accept="image/*"
-//                 onChange={handleImageChange}
-//                 className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-//               />
-//               {imagePreview && (
-//                 <img
-//                   src={imagePreview}
-//                   alt="Preview"
-//                   className="mt-3 rounded shadow max-h-40 mx-auto"
-//                 />
-//               )}
-//             </div>
-//             <div>
-//               <label className="block font-medium mb-1">Number of Passes:</label>
-//               <input
-//                 type="number"
-//                 value={count}
-//                 min={1}
-//                 onChange={(e) => setCount(e.target.value)}
-//                 required
-//                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200"
-//               />
-//             </div>
-//             <div className="flex gap-3 justify-center">
-//               <button
-//                 type="submit"
-//                 disabled={loading}
-//                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition disabled:opacity-50"
-//               >
-//                 {currentPass ? "Update Pass" : "Create Pass"}
-//               </button>
-//               {currentPass && (
-//                 <button
-//                   type="button"
-//                   onClick={() => setEditMode(false)}
-//                   className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded transition"
-//                 >
-//                   Cancel
-//                 </button>
-//               )}
-//             </div>
-//           </form>
-//         )}
-//         {message && <p className="mt-4 text-center text-green-600 font-medium">{message}</p>}
-//       </div>
-//       {showShareModal && (
-//         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-//           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
-//             <h3 className="text-lg font-bold mb-4 text-center">Share Pass</h3>
-//             <form onSubmit={handleShare} className="space-y-4">
-//               <div>
-//                 <label className="block mb-1 font-medium">Recipient Name</label>
-//                 <input
-//                   type="text"
-//                   value={shareName}
-//                   onChange={(e) => setShareName(e.target.value)}
-//                   required
-//                   maxLength={30}
-//                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200"
-//                   placeholder="Enter recipient name"
-//                 />
-//               </div>
-//               <div>
-//                 <label className="block mb-1 font-medium">Mobile Number</label>
-//                 <input
-//                   type="tel"
-//                   value={shareMobile}
-//                   onChange={(e) => setShareMobile(e.target.value)}
-//                   required
-//                   pattern="[0-9]{10,15}"
-//                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200"
-//                   placeholder="Enter mobile number"
-//                 />
-//               </div>
-//               <div>
-//                 <label className="block mb-1 font-medium">Number of Passes</label>
-//                 <input
-//                   type="number"
-//                   value={shareCount}
-//                   min={1}
-//                   max={currentPass?.count || 1}
-//                   onChange={(e) => setShareCount(e.target.value)}
-//                   required
-//                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-200"
-//                 />
-//               </div>
-//               <div className="flex gap-2 justify-center">
-//                 <button
-//                   type="submit"
-//                   className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition"
-//                 >
-//                   Share
-//                 </button>
-//                 <button
-//                   type="button"
-//                   onClick={() => setShowShareModal(false)}
-//                   className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded transition"
-//                 >
-//                   Cancel
-//                 </button>
-//               </div>
-//             </form>
-//             {shareMessage && <p className="mt-3 text-center text-red-600">{shareMessage}</p>}
-//           </div>
-//         </div>
-//       )}
-//       {showOtpModal && (
-//         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-//           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-xs">
-//             <h3 className="text-lg font-bold mb-4 text-center">Verify OTP</h3>
-//             {otpSent ? (
-//               <div className="space-y-4">
-//                 <p className="text-sm text-gray-600 text-center">
-//                   {isDemoMode ? (
-//                     <>
-//                       OTP sent to {pendingShare?.mobile}.<br />
-//                       {demoOtp && (
-//                         <span className="font-bold text-green-600">
-//                           Demo OTP: {demoOtp}
-//                         </span>
-//                       )}
-//                     </>
-//                   ) : (
-//                     `OTP sent to ${pendingShare?.mobile} via SMS.`
-//                   )}
-//                 </p>
-//                 <div>
-//                   <label className="block mb-1 font-medium">Enter OTP</label>
-//                   <input
-//                     type="text"
-//                     value={otp}
-//                     onChange={(e) => setOtp(e.target.value)}
-//                     maxLength={6}
-//                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-200"
-//                     placeholder="Enter 6-digit OTP"
-//                   />
-//                 </div>
-//                 <div className="flex gap-2 justify-center">
-//                   <button
-//                     onClick={handleVerifyOtp}
-//                     disabled={otp.length !== 6}
-//                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition disabled:opacity-50"
-//                   >
-//                     Verify & Share
-//                   </button>
-//                   <button
-//                     onClick={() => {
-//                       setShowOtpModal(false);
-//                       setPendingShare(null);
-//                     }}
-//                     className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded transition"
-//                   >
-//                     Cancel
-//                   </button>
-//                 </div>
-//                 {otpError && <p className="mt-3 text-center text-red-600 text-sm">{otpError}</p>}
-//               </div>
-//             ) : (
-//               <div className="text-center">
-//                 <p className="text-gray-600 mb-4">Sending OTP...</p>
-//                 <button
-//                   onClick={() => {
-//                     setShowOtpModal(false);
-//                     setPendingShare(null);
-//                   }}
-//                   className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded transition"
-//                 >
-//                   Cancel
-//                 </button>
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//       <button
-//         className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 mt-4"
-//         onClick={openUserTable}
-//       >
-//         Show User Passes Detail
-//       </button>
-//       {showUserTable && (
-//         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
-//           <div className="bg-white rounded-lg shadow-lg p-6 min-w-[340px] relative">
-//             <button
-//               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-//               onClick={closeUserTable}
-//             >
-//               ×
-//             </button>
-//             <h2 className="text-xl font-bold mb-4">All User Passes</h2>
-//             <AdminSalesTable />
-//           </div>
-//         </div>
-//       )}
-//       <EmployeeSection API_BASE_URL={API_BASE_URL} />
-//     </div>
-//   );
-// }
-
-// function EmployeeSection({ API_BASE_URL }) {
-//   const [employees, setEmployees] = useState([]);
-//   const [name, setName] = useState("");
-//   const [mobile, setMobile] = useState("");
-//   const [msg, setMsg] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   useEffect(() => {
-//     fetchEmployees();
-//   }, []);
-
-//   const fetchEmployees = async () => {
-//     try {
-//       const res = await axios.get(`${API_BASE_URL}/api/employees`);
-//       setEmployees(res.data);
-//     } catch (err) {
-//       console.error("Error fetching employees:", err);
-//       setMsg("Failed to fetch employees");
-//     }
-//   };
-
-//   const handleCreate = async (e) => {
-//     e.preventDefault();
-//     setMsg("");
-//     if (!name.trim()) {
-//       setMsg("Name is required");
-//       return;
-//     }
-//     if (!mobile.trim()) {
-//       setMsg("Mobile is required");
-//       return;
-//     }
-//     if (!password.trim()) {
-//       setMsg("Password is required");
-//       return;
-//     }
-//     try {
-//       const response = await axios.post(`${API_BASE_URL}/api/employees`, { name, mobile, password });
-//       setMsg("Employee added successfully!");
-//       setName("");
-//       setMobile("");
-//       setPassword("");
-//       fetchEmployees();
-//     } catch (err) {
-//       console.error("Error creating employee:", err.response?.data || err.message);
-//       setMsg(err.response?.data?.message || "Failed to add employee");
-//     }
-//   };
-
-//   return (
-//     <div style={{ border: "1px solid #ccc", padding: 16, margin: "16px 0" }}>
-//       <h3>Employees</h3>
-//       <form onSubmit={handleCreate} style={{ display: "flex", gap: 8 }}>
-//         <input
-//           value={name}
-//           onChange={(e) => setName(e.target.value)}
-//           placeholder="Name"
-//           required
-//         />
-//         <input
-//           value={mobile}
-//           onChange={(e) => setMobile(e.target.value)}
-//           placeholder="Mobile"
-//           required
-//         />
-//         <input
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//           placeholder="Password"
-//           required
-//           type="password"
-//         />
-//         <button type="submit">Add</button>
-//       </form>
-//       {msg && <div>{msg}</div>}
-//       <ul>
-//         {employees.map((emp) => (
-//           <li key={emp._id} style={{ marginBottom: "8px", padding: "4px", border: "1px solid #eee" }}>
-//             <strong>{emp.name}</strong> - {emp.mobile}
-//             <br />
-//             <small style={{ color: emp.password ? "green" : "red" }}>
-//               Password: {emp.password ? "✓ Stored" : "✗ Missing"}
-//               {emp.password && ` (${emp.password.length} chars)`}
-//             </small>
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
-
-// export default AdminDashboardPage;
- 
 import { useEffect, useState } from "react"
 import { getImageUrl } from "../utils/getImageUrl"
 import axios from "axios"
@@ -610,10 +92,12 @@ function AdminDashboardPage() {
           headers: { "Content-Type": "multipart/form-data" },
         })
       }
+
       setMessage("Pass saved successfully!")
       setEditMode(false)
       setImage(null)
       fetchCurrentPass()
+      fetchSummary() // Refresh summary after updating passes
     } catch (err) {
       console.error("Error saving pass:", err.response?.data || err.message)
       setMessage(err.response?.data?.message || "Error saving pass")
@@ -706,6 +190,7 @@ function AdminDashboardPage() {
         setShareCount(1)
         setPendingShare(null)
         fetchCurrentPass()
+        fetchSummary() // Refresh summary after sharing
       } else {
         setOtpError("Invalid OTP")
       }
@@ -728,7 +213,7 @@ function AdminDashboardPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm font-medium">Total Passes</p>
@@ -747,7 +232,7 @@ function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6">
+          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-100 text-sm font-medium">Available</p>
@@ -766,7 +251,7 @@ function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6">
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6 transform hover:scale-105 transition-transform duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-100 text-sm font-medium">Sold</p>
@@ -788,7 +273,7 @@ function AdminDashboardPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pass Management */}
-          <div className="bg-white rounded-xl shadow-xl p-6">
+          <div className="bg-white rounded-xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
             <div className="flex items-center gap-3 mb-6">
               <div className="bg-blue-100 rounded-lg p-2">
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -830,7 +315,6 @@ function AdminDashboardPage() {
                     <p className="text-2xl font-bold text-slate-800">{currentPass.count}</p>
                   </div>
                 </div>
-
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleEdit}
@@ -904,7 +388,6 @@ function AdminDashboardPage() {
                     </label>
                   </div>
                 </div>
-
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-slate-700">Number of Passes</label>
                   <input
@@ -916,7 +399,6 @@ function AdminDashboardPage() {
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-semibold"
                   />
                 </div>
-
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     type="submit"
@@ -963,8 +445,8 @@ function AdminDashboardPage() {
         </div>
 
         {/* Actions */}
-        <div className="bg-white rounded-xl shadow-xl p-6">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white rounded-xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
+          <div className="flex items-center gap-3 mb-6">
             <div className="bg-blue-100 rounded-lg p-2">
               <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -981,22 +463,41 @@ function AdminDashboardPage() {
                 />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-slate-800">System Overview</h2>
+            <div>
+              <h2 className="text-xl font-semibold text-slate-800">System Overview</h2>
+              <p className="text-slate-600 text-sm">Monitor user activity and pass distribution</p>
+            </div>
           </div>
-          <button
-            onClick={openUserTable}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            View User Passes Detail
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button
+              onClick={openUserTable}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              View User Passes Detail
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Refresh Dashboard
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1020,7 +521,6 @@ function AdminDashboardPage() {
                 <p className="text-sm text-slate-600">Send passes to recipients via WhatsApp</p>
               </div>
             </div>
-
             <form onSubmit={handleShare} className="space-y-4">
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700">Recipient Name</label>
@@ -1046,7 +546,6 @@ function AdminDashboardPage() {
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700">Mobile Number</label>
                 <div className="relative">
@@ -1071,7 +570,6 @@ function AdminDashboardPage() {
                   />
                 </div>
               </div>
-
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700">Number of Passes</label>
                 <input
@@ -1084,7 +582,6 @@ function AdminDashboardPage() {
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
                 />
               </div>
-
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
@@ -1108,7 +605,6 @@ function AdminDashboardPage() {
                   Cancel
                 </button>
               </div>
-
               {shareMessage && (
                 <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{shareMessage}</div>
               )}
@@ -1134,7 +630,6 @@ function AdminDashboardPage() {
               </div>
               <h3 className="text-lg font-semibold">Verify OTP</h3>
             </div>
-
             {otpSent ? (
               <div className="space-y-4">
                 <div className="text-center p-4 bg-slate-50 rounded-lg">
@@ -1153,7 +648,6 @@ function AdminDashboardPage() {
                     )}
                   </p>
                 </div>
-
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-slate-700">Enter OTP</label>
                   <input
@@ -1165,7 +659,6 @@ function AdminDashboardPage() {
                     placeholder="000000"
                   />
                 </div>
-
                 <div className="flex gap-3">
                   <button
                     onClick={handleVerifyOtp}
@@ -1187,7 +680,6 @@ function AdminDashboardPage() {
                     Cancel
                   </button>
                 </div>
-
                 {otpError && (
                   <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{otpError}</div>
                 )}
@@ -1214,8 +706,8 @@ function AdminDashboardPage() {
       {/* User Table Modal */}
       {showUserTable && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-slate-200">
               <div className="flex items-center gap-3">
                 <div className="bg-blue-100 rounded-lg p-2">
                   <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1227,15 +719,23 @@ function AdminDashboardPage() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold">All User Passes</h3>
+                <div>
+                  <h3 className="text-xl font-semibold text-slate-800">All User Passes</h3>
+                  <p className="text-sm text-slate-600">Complete overview of user pass activity</p>
+                </div>
               </div>
-              <button onClick={closeUserTable} className="text-slate-400 hover:text-slate-600 transition-colors">
+              <button
+                onClick={closeUserTable}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-2 hover:bg-slate-100 rounded-lg"
+              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <AdminSalesTable />
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+              <AdminSalesTable />
+            </div>
           </div>
         </div>
       )}
@@ -1275,11 +775,13 @@ function EmployeeSection({ API_BASE_URL }) {
       setLoading(false)
       return
     }
+
     if (!mobile.trim()) {
       setMsg("Mobile is required")
       setLoading(false)
       return
     }
+
     if (!password.trim()) {
       setMsg("Password is required")
       setLoading(false)
@@ -1302,7 +804,7 @@ function EmployeeSection({ API_BASE_URL }) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-xl p-6">
+    <div className="bg-white rounded-xl shadow-xl p-6 hover:shadow-2xl transition-shadow duration-300">
       <div className="flex items-center gap-3 mb-6">
         <div className="bg-indigo-100 rounded-lg p-2">
           <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1344,7 +846,6 @@ function EmployeeSection({ API_BASE_URL }) {
               />
             </div>
           </div>
-
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700">Mobile</label>
             <div className="relative">
@@ -1368,7 +869,6 @@ function EmployeeSection({ API_BASE_URL }) {
             </div>
           </div>
         </div>
-
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700">Password</label>
           <div className="relative">
@@ -1392,7 +892,6 @@ function EmployeeSection({ API_BASE_URL }) {
             />
           </div>
         </div>
-
         <button
           type="submit"
           disabled={loading}
@@ -1428,7 +927,7 @@ function EmployeeSection({ API_BASE_URL }) {
         ) : (
           <div className="space-y-3">
             {employees.map((emp) => (
-              <div key={emp._id} className="border border-slate-200 rounded-lg p-4">
+              <div key={emp._id} className="border border-slate-200 rounded-lg p-4 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <p className="font-medium text-slate-800">{emp.name}</p>
