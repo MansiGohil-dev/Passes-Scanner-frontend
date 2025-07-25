@@ -145,9 +145,14 @@ function ScanUserPass() {
   return (
     <div>
       {/* QR Scanner will render here */}
-      {!modalOpen && (
-        <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
-      )}
+      <div
+        id="reader"
+        style={{
+          width: 300,
+          margin: '0 auto',
+          display: modalOpen ? 'none' : 'block'
+        }}
+      ></div>
       {/* Result and access messages */}
       {modalOpen && (
         <div style={{
