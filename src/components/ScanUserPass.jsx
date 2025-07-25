@@ -796,7 +796,11 @@ function ScanUserPass() {
   const [scannerReady, setScannerReady] = useState(false);
 
   useEffect(() => {
-    if (scannerReady) return;
+    // Only initialize scanner if showScanner and cameraReady are true, and scannerReady is false
+    if (!showScanner || !cameraReady || scannerReady) return;
+    const readerElem = document.getElementById('reader');
+    if (!readerElem) return; // Wait until #reader is mounted in the DOM
+
     scannerRef.current = new Html5QrcodeScanner(
       "reader",
       { fps: 10, qrbox: 250 },
@@ -878,13 +882,15 @@ function ScanUserPass() {
         setScanError(errorMessage);
       }
     );
+    setScannerReady(true);
     return () => {
       if (scannerRef.current) {
         scannerRef.current.clear();
         scannerRef.current = null;
       }
+      setScannerReady(false);
     };
-  }, [scannerReady]);
+  }, [showScanner, cameraReady, scannerReady]);
 
   useEffect(() => {
     const mobile = sessionStorage.getItem('employeeMobile');
