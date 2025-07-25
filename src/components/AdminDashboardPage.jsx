@@ -509,6 +509,7 @@
 
 
 import React, { useEffect, useState } from "react";
+import { getImageUrl } from '../utils/getImageUrl';
 import axios from "axios";
 import AdminSalesTable from "./AdminSalesTable";
 
