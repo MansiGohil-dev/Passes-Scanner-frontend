@@ -753,7 +753,7 @@ function ScanUserPass() {
     setCameraReady(true);
     setScannerReady(true);
   }, 150);
-}
+}}
             >Close</button>
           )}
           {modalMessage && (
