@@ -33,7 +33,7 @@ function ShareExtraPass({ token, total, remaining }) {
         if (Array.isArray(data.shared)) {
           const links = data.shared.map(item => ({
             mobile: item.mobile,
-            link: `${window.location.origin}/#/scan-pass/${item.token}`
+            link: `${window.location.origin}/#/shared-pass/${item.token}`
           }));
           setFetchedLinks(links);
         }
@@ -90,9 +90,9 @@ function ShareExtraPass({ token, total, remaining }) {
       // Backend may return token or tokens (array)
       let links = [];
       if (data.token) {
-        links = [`${window.location.origin}/#/scan-pass/${data.token}`];
+        links = [`${window.location.origin}/#/shared-pass/${data.token}`];
       } else if (data.tokens && Array.isArray(data.tokens)) {
-        links = data.tokens.map(token => `${window.location.origin}/#/scan-pass/${token}`);
+        links = data.tokens.map(token => `${window.location.origin}/#/shared-pass/${token}`);
       } else {
         setError('No valid pass link received from server.');
         setLoading(false);
