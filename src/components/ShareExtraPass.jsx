@@ -13,6 +13,8 @@ function ShareExtraPass({ token, total, remaining }) {
   const [mobile, setMobile] = useState('');
   const [name, setName] = useState('');
   const [sharedLinks, setSharedLinks] = useState([]);
+  // Track all previously shared passes fetched from backend
+  const [fetchedLinks, setFetchedLinks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -20,9 +22,29 @@ function ShareExtraPass({ token, total, remaining }) {
 
   // Use backend API base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  // Fetch all previously shared passes for this parentToken
   useEffect(() => {
+    async function fetchSharedPasses() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/passes/shared-links/${token}`);
+        if (!res.ok) throw new Error('Failed to fetch shared passes');
+        const data = await res.json();
+        // Expected: data.shared (array of { mobile, token })
+        if (Array.isArray(data.shared)) {
+          const links = data.shared.map(item => ({
+            mobile: item.mobile,
+            link: `${window.location.origin}/#/scan-pass/${item.token}`
+          }));
+          setFetchedLinks(links);
+        }
+      } catch {
+        // Ignore fetch errors for now
+      }
+    }
+    fetchSharedPasses();
+    // Optionally, fetch employees for validation or future features
     fetch(`${API_BASE_URL}/api/employees`).then(res => res.json()).then(() => {}).catch(() => {});
-  }, []);
+  }, [API_BASE_URL, token]);
 
   // Share pass via backend, send WhatsApp
   const handleShare = async () => {
@@ -102,6 +124,9 @@ function ShareExtraPass({ token, total, remaining }) {
 
   const canShare = total > 0 && sharedLinks.length < total;
 
+  // Combine previously fetched links and links shared in this session
+  const allSharedLinks = [...fetchedLinks, ...sharedLinks];
+
   return (
     <div>
       <div className="max-w-lg mx-auto bg-white shadow-lg rounded-lg p-6 mb-6 border border-gray-200">
@@ -161,11 +186,11 @@ function ShareExtraPass({ token, total, remaining }) {
 
       </div>
       {/* List of shared links with QR codes */}
-      {sharedLinks.length > 0 && (
+      {allSharedLinks.length > 0 && (
         <div className="mt-6 bg-gray-50 rounded-lg shadow-inner p-4">
           <h3 className="text-lg font-bold text-green-800 mb-2">Shared Passes</h3>
           <ul className="space-y-4">
-            {sharedLinks.map((item, idx) => (
+            {allSharedLinks.map((item, idx) => (
               <li key={idx} className="flex items-center gap-4 bg-white p-3 rounded shadow">
                 <QRCodeSVG value={item.link} size={64} className="border rounded" />
                 <div>
