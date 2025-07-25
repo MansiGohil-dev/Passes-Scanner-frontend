@@ -49,11 +49,12 @@
 
 //   const getImageUrl = (url) => {
 //     if (!url) return '';
-//     // Always serve from backend uploads folder
-//     if (url.startsWith('http')) return url;
-//     // Remove leading slash if present
-//     const cleanUrl = url.replace(/^\/?uploads\/?/, '');
-//     return `${API_BASE_URL}/uploads/${cleanUrl}`;
+//     // If already a full URL, return as is
+//     if (/^https?:\/\//i.test(url)) return url;
+//     // Remove any leading slashes or 'uploads/' prefix (case-insensitive)
+//     let cleanUrl = url.replace(/^\/?(uploads|Uploads)\/?/i, '').replace(/^\//, '');
+//     // Ensure no double slashes when joining
+//     return `${API_BASE_URL.replace(/\/?$/, '')}/uploads/${cleanUrl}`;
 //   };
 
 //   const fetchCurrentPass = async () => {
