@@ -154,7 +154,16 @@ function ScanUserPass() {
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
           background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
         }}>
-          <div style={{ background: '#fff', padding: 32, borderRadius: 8, minWidth: 300, textAlign: 'center', boxShadow: '0 2px 10px #0003' }}>
+          <div style={{
+            background: scanResult && scanResult.allowed ? '#d1fae5' : scanResult && scanResult.allowed === false ? '#fee2e2' : '#fff',
+            color: scanResult && scanResult.allowed ? '#065f46' : scanResult && scanResult.allowed === false ? '#991b1b' : '#222',
+            padding: 32,
+            borderRadius: 8,
+            minWidth: 300,
+            textAlign: 'center',
+            boxShadow: '0 2px 10px #0003',
+            border: scanResult && scanResult.allowed ? '2px solid #10b981' : scanResult && scanResult.allowed === false ? '2px solid #ef4444' : 'none'
+          }}>
             {scanResult && scanResult.expired ? (
               <>
                 <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>QR Expired</div>
@@ -162,9 +171,27 @@ function ScanUserPass() {
               </>
             ) : scanResult ? (
               <>
-                <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>Scan Result</div>
+                <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>
+                  Scan Result
+                  {scanResult && scanResult.allowed && (
+                    <span style={{ marginLeft: 8, color: '#10b981', fontWeight: 700, fontSize: 16 }}>✔</span>
+                  )}
+                  {scanResult && scanResult.allowed === false && (
+                    <span style={{ marginLeft: 8, color: '#ef4444', fontWeight: 700, fontSize: 16 }}>✖</span>
+                  )}
+                </div>
                 <div style={{ marginBottom: 8 }}><b>User Name:</b> {scanResult.name || 'N/A'}</div>
-                <div style={{ marginBottom: 8 }}><b>Access:</b> {scanResult.allowed ? 'Allowed' : 'Denied'}</div>
+                <div style={{
+                 marginBottom: 8,
+                 padding: '8px 0',
+                 borderRadius: 4,
+                 fontWeight: 600,
+                 color: '#fff',
+                 background: scanResult.allowed ? '#22c55e' : '#ef4444',
+                 boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+               }}>
+                 Access: {scanResult.allowed ? 'Allowed' : 'Denied'}
+               </div>
                 {scanResult.message && <div style={{ marginBottom: 8 }}>{scanResult.message}</div>}
               </>
             ) : (
