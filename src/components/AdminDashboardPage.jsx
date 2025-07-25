@@ -49,9 +49,11 @@ function AdminDashboardPage() {
 
   const getImageUrl = (url) => {
     if (!url) return '';
-    // Ensure correct backend image path
+    // Always serve from backend uploads folder
     if (url.startsWith('http')) return url;
-    return `${API_BASE_URL}/${url.replace(/\\/g, '/')}`;
+    // Remove leading slash if present
+    const cleanUrl = url.replace(/^\/?uploads\/?/, '');
+    return `${API_BASE_URL}/uploads/${cleanUrl}`;
   };
 
   const fetchCurrentPass = async () => {
@@ -60,7 +62,7 @@ function AdminDashboardPage() {
       const res = await axios.get(`${API_BASE_URL}/api/passes`);
       setCurrentPass(res.data);
       setCount(res.data.count);
-      setImagePreview(`/${res.data.imageUrl.replace(/\\/g, '/')}`);
+      setImagePreview(getImageUrl(res.data.imageUrl));
       setLoading(false);
     } catch (err) {
       setCurrentPass(null);
