@@ -145,9 +145,9 @@ function ScanUserPass() {
   return (
     <div>
       {/* QR Scanner will render here */}
-      {!modalOpen && (
-        <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
-      )}
+{showScanner && !modalOpen && (
+  <div id="reader" style={{ width: 300, margin: '0 auto' }}></div>
+)}
       {/* Result and access messages */}
       {modalOpen && (
         <div style={{
@@ -225,7 +225,6 @@ function ScanUserPass() {
     }
     setScanning(false);
   } else if (scanResult && scanResult.qr) {
-    // Denied or expired, add to history
     setScanHistory(prev => [{
       time: new Date().toLocaleTimeString(),
       qr: scanResult.qr,
@@ -236,7 +235,8 @@ function ScanUserPass() {
     }, ...prev]);
   }
   setShowScanner(true);
-  setScannerReady(true);
+  setScannerReady(false);
+  setTimeout(() => setScannerReady(true), 100);
   setScanResult(null);
   setScanError("");
 }}
