@@ -731,29 +731,32 @@ function ScanUserPass() {
             <button
               style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
               onClick={() => {
-  setModalOpen(false);
-  if (scanResult && scanResult.qr) {
-    setScanHistory(prev => [{
-      time: new Date().toLocaleTimeString(),
-      qr: scanResult.qr,
-      userName: scanResult.name || 'N/A',
-      status: scanResult.allowed ? 'Allowed' : 'Denied',
-      message: scanResult.message || '',
-      error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
-    }, ...prev]);
-  }
-  setScanResult(null);
-  setScanError("");
-  // Force scanner to reset and re-initialize cleanly
-  setShowScanner(false);
-  setCameraReady(false);
-  setScannerReady(false);
-  setTimeout(() => {
-    setShowScanner(true);
-    setCameraReady(true);
-    setScannerReady(true);
-  }, 150);
-}}
+                setModalOpen(false);
+                if (scanResult && scanResult.qr) {
+                  setScanHistory(prev => [{
+                    time: new Date().toLocaleTimeString(),
+                    qr: scanResult.qr,
+                    userName: scanResult.name || 'N/A',
+                    status: scanResult.allowed ? 'Allowed' : 'Denied',
+                    message: scanResult.message || '',
+                    error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
+                  }, ...prev]);
+                }
+                setScanResult(null);
+                setScanError("");
+                if (scannerRef.current) {
+                  scannerRef.current.clear();
+                  scannerRef.current = null;
+                }
+                setShowScanner(false);
+                setCameraReady(false);
+                setScannerReady(false);
+                setTimeout(() => {
+                  setShowScanner(true);
+                  setCameraReady(true);
+                  setScannerReady(true);
+                }, 150);
+              }}
             >Close</button>
           )}
           {modalMessage && (
