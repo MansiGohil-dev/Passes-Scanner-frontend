@@ -31,7 +31,7 @@ function ScanUserPass() {
 
   useEffect(() => {
     // QR Scanner setup using html5-qrcode
-    if (scannerReady) return; // Prevent re-initialization
+    if (!scannerReady) return; // Only initialize when scannerReady is true
     scannerRef.current = new Html5QrcodeScanner(
       "reader",
       { fps: 10, qrbox: 250 },
