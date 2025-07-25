@@ -653,54 +653,81 @@ function ScanUserPass() {
           ) : (
             <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{modalMessage}</div>
           )}
-          <button
-            style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
-            disabled={scanning}
-            onClick={async () => {
-              setModalOpen(false);
-              if (scanResult && scanResult.allowed && scanResult.passId && !scanResult.used) {
-                setScanning(true);
-                try {
-                  await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
-                    employeeId: sessionStorage.getItem('employeeId'),
-                    mobile: sessionStorage.getItem('employeeMobile')
-                  });
+          {/* Dedicated Mark as Used and Close buttons */}
+          {scanResult && scanResult.allowed && scanResult.passId && !scanResult.used ? (
+            <>
+              <button
+                style={{ padding: '8px 32px', borderRadius: 4, background: '#22c55e', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16, marginRight: 12 }}
+                disabled={scanning}
+                onClick={async () => {
+                  setScanning(true);
+                  try {
+                    await axios.patch(`${API_BASE_URL}/api/passes/shared/${scanResult.passId}/use`, {
+                      employeeId: sessionStorage.getItem('employeeId'),
+                      mobile: sessionStorage.getItem('employeeMobile')
+                    });
+                    setScanHistory(prev => [{
+                      time: new Date().toLocaleTimeString(),
+                      qr: scanResult.qr,
+                      userName: scanResult.name,
+                      status: 'Allowed',
+                      message: scanResult.message,
+                      error: ''
+                    }, ...prev]);
+                    setModalMessage('Pass marked as used successfully!');
+                    setScanResult({ ...scanResult, used: true });
+                  } catch (err) {
+                    setScanError('Failed to mark as used. Try again.');
+                    setModalMessage('Failed to mark as used. Try again.');
+                  }
+                  setScanning(false);
+                }}
+              >{scanning ? 'Processing...' : 'Mark as Used'}</button>
+              <button
+                style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
+                onClick={() => {
+                  setModalOpen(false);
+                  setScanResult(null);
+                  setScanError("");
+                  setTimeout(() => {
+                    setScannerReady(false);
+                    setShowScanner(false);
+                    setTimeout(() => {
+                      setShowScanner(true);
+                      setScannerReady(true);
+                    }, 100);
+                  }, 100);
+                }}
+              >Close</button>
+            </>
+          ) : (
+            <button
+              style={{ padding: '8px 32px', borderRadius: 4, background: '#4F46E5', color: '#fff', border: 'none', fontWeight: 600, fontSize: 16 }}
+              onClick={() => {
+                setModalOpen(false);
+                if (scanResult && scanResult.qr) {
                   setScanHistory(prev => [{
                     time: new Date().toLocaleTimeString(),
                     qr: scanResult.qr,
-                    userName: scanResult.name,
-                    status: 'Allowed',
-                    message: scanResult.message,
-                    error: ''
+                    userName: scanResult.name || 'N/A',
+                    status: scanResult.allowed ? 'Allowed' : 'Denied',
+                    message: scanResult.message || '',
+                    error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
                   }, ...prev]);
-                  setModalMessage('Pass marked as used successfully!');
-                } catch (err) {
-                  setScanError('Failed to mark as used. Try again.');
-                  setModalMessage('Failed to mark as used. Try again.');
                 }
-                setScanning(false);
-              } else if (scanResult && scanResult.qr) {
-                setScanHistory(prev => [{
-                  time: new Date().toLocaleTimeString(),
-                  qr: scanResult.qr,
-                  userName: scanResult.name || 'N/A',
-                  status: 'Denied',
-                  message: scanResult.message || '',
-                  error: scanResult.expired ? 'Expired' : (scanResult.used ? 'Used' : '')
-                }, ...prev]);
-              }
-              setScanResult(null);
-              setScanError("");
-              setTimeout(() => {
-                setScannerReady(false);
-                setShowScanner(false);
+                setScanResult(null);
+                setScanError("");
                 setTimeout(() => {
-                  setShowScanner(true);
-                  setScannerReady(true);
+                  setScannerReady(false);
+                  setShowScanner(false);
+                  setTimeout(() => {
+                    setShowScanner(true);
+                    setScannerReady(true);
+                  }, 100);
                 }, 100);
-              }, 100);
-            }}
-          >{scanning ? 'Processing...' : 'OK'}</button>
+              }}
+            >Close</button>
+          )}
           {modalMessage && (
             <div style={{ marginTop: 10, color: modalMessage.includes('success') ? 'green' : 'red', fontWeight: 500 }}>{modalMessage}</div>
           )}
