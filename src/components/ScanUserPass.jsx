@@ -59,6 +59,7 @@ function ScanUserPass() {
         if (match) {
           const passId = match[1];
           try {
+            // Step 1: Only check access, do not mark as used
             const response = await axios.post(`${API_BASE_URL}/api/passes/shared/${passId}/scan`, {
               employeeId: sessionStorage.getItem('employeeId'),
               mobile: sessionStorage.getItem('employeeMobile')
@@ -67,29 +68,15 @@ function ScanUserPass() {
             userName = name || "N/A";
             status = allowed ? "Allowed" : "Denied";
             message = backendMessage || (allowed ? "Entry allowed" : "Access Denied");
-            setScanResult({ name: userName, allowed, message });
+            setScanResult({ name: userName, allowed, message, passId, qr: decodedText });
             setModalMessage(""); // We'll show details in the popup
             setModalOpen(true);
-            // Add QR to scanned list
-            setScannedQrs(prev => [...prev, decodedText]);
             // Pause scanner after scan
             if (scannerRef.current) {
               scannerRef.current.clear();
               setScannerReady(false);
             }
             setScanError("");
-            // Only add to history if not already scanned
-            setScanHistory(prev => {
-              if (prev.some(item => item.qr === decodedText)) return prev;
-              return [{
-                time: new Date().toLocaleTimeString(),
-                qr: decodedText,
-                userName,
-                status,
-                message,
-                error: ""
-              }, ...prev];
-            });
           } catch (err) {
             setScanResult({ name: "N/A", allowed: false, message: error });
             setModalMessage(""); // Show details in popup
