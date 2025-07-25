@@ -517,38 +517,11 @@
 // }
 
 // export default AdminDashboardPage;
-
  
-
 import { useEffect, useState } from "react"
 import { getImageUrl } from "../utils/getImageUrl"
 import axios from "axios"
 import AdminSalesTable from "./AdminSalesTable"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import {
-  Users,
-  Share2,
-  Edit3,
-  Plus,
-  Upload,
-  Eye,
-  UserPlus,
-  BarChart3,
-  Ticket,
-  Phone,
-  User,
-  Lock,
-  CheckCircle,
-  XCircle,
-  Loader2,
-} from "lucide-react"
 
 function AdminDashboardPage() {
   const [showUserTable, setShowUserTable] = useState(false)
@@ -755,362 +728,517 @@ function AdminDashboardPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Total Passes</CardTitle>
-              <BarChart3 className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.total}</div>
-            </CardContent>
-          </Card>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm font-medium">Total Passes</p>
+                <p className="text-2xl font-bold">{summary.total}</p>
+              </div>
+              <div className="bg-blue-400 bg-opacity-30 rounded-lg p-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Available</CardTitle>
-              <Ticket className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.available}</div>
-            </CardContent>
-          </Card>
+          <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm font-medium">Available</p>
+                <p className="text-2xl font-bold">{summary.available}</p>
+              </div>
+              <div className="bg-green-400 bg-opacity-30 rounded-lg p-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
 
-          <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium opacity-90">Sold</CardTitle>
-              <Users className="h-4 w-4 opacity-90" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{summary.sold}</div>
-            </CardContent>
-          </Card>
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm font-medium">Sold</p>
+                <p className="text-2xl font-bold">{summary.sold}</p>
+              </div>
+              <div className="bg-purple-400 bg-opacity-30 rounded-lg p-3">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Pass Management */}
-          <Card className="border-0 shadow-xl">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Ticket className="h-5 w-5 text-blue-600" />
-                Pass Management
-              </CardTitle>
-              <CardDescription>Create and manage your event passes</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {loading && (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
-                  <span className="ml-2 text-slate-600">Loading...</span>
-                </div>
-              )}
+          <div className="bg-white rounded-xl shadow-xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-blue-100 rounded-lg p-2">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-slate-800">Pass Management</h2>
+                <p className="text-slate-600 text-sm">Create and manage your event passes</p>
+              </div>
+            </div>
 
-              {currentPass && !editMode && (
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold mb-3">Current Pass</h3>
-                    <div className="relative inline-block">
-                      <img
-                        src={getImageUrl(currentPass.imageUrl) || "/placeholder.svg"}
-                        alt="Pass"
-                        className="mx-auto rounded-lg shadow-md max-h-48 w-auto"
-                        onError={(e) =>
-                          console.error("Image load error:", e, "URL:", getImageUrl(currentPass.imageUrl))
-                        }
-                      />
-                    </div>
-                    <div className="mt-4 p-3 bg-slate-50 rounded-lg">
-                      <p className="text-sm text-slate-600">Available Passes</p>
-                      <p className="text-2xl font-bold text-slate-800">{currentPass.count}</p>
-                    </div>
-                  </div>
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                <span className="ml-2 text-slate-600">Loading...</span>
+              </div>
+            )}
 
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button onClick={handleEdit} className="flex-1 bg-transparent" variant="outline">
-                      <Edit3 className="h-4 w-4 mr-2" />
-                      Edit Pass
-                    </Button>
-                    <Button
-                      onClick={() => setShowShareModal(true)}
-                      className="flex-1 bg-purple-600 hover:bg-purple-700"
-                    >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share Pass
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {(editMode || !currentPass) && (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="image">Pass Image</Label>
-                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
-                      <input id="image" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-                      <label htmlFor="image" className="cursor-pointer">
-                        {imagePreview ? (
-                          <img
-                            src={imagePreview || "/placeholder.svg"}
-                            alt="Preview"
-                            className="mx-auto rounded-lg shadow-sm max-h-40"
-                          />
-                        ) : (
-                          <div className="space-y-2">
-                            <Upload className="h-8 w-8 mx-auto text-slate-400" />
-                            <p className="text-sm text-slate-600">Click to upload image</p>
-                          </div>
-                        )}
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="count">Number of Passes</Label>
-                    <Input
-                      id="count"
-                      type="number"
-                      value={count}
-                      min={1}
-                      onChange={(e) => setCount(e.target.value)}
-                      required
-                      className="text-center text-lg font-semibold"
+            {currentPass && !editMode && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-3">Current Pass</h3>
+                  <div className="relative inline-block">
+                    <img
+                      src={getImageUrl(currentPass.imageUrl) || "/placeholder.svg"}
+                      alt="Pass"
+                      className="mx-auto rounded-lg shadow-md max-h-48 w-auto"
+                      onError={(e) => console.error("Image load error:", e, "URL:", getImageUrl(currentPass.imageUrl))}
                     />
                   </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button type="submit" disabled={loading} className="flex-1 bg-green-600 hover:bg-green-700">
-                      {loading ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                      )}
-                      {currentPass ? "Update Pass" : "Create Pass"}
-                    </Button>
-                    {currentPass && (
-                      <Button type="button" onClick={() => setEditMode(false)} variant="outline" className="flex-1">
-                        Cancel
-                      </Button>
-                    )}
+                  <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                    <p className="text-sm text-slate-600">Available Passes</p>
+                    <p className="text-2xl font-bold text-slate-800">{currentPass.count}</p>
                   </div>
-                </form>
-              )}
+                </div>
 
-              {message && (
-                <Alert
-                  className={
-                    message.includes("Error") || message.includes("Failed")
-                      ? "border-red-200 bg-red-50"
-                      : "border-green-200 bg-green-50"
-                  }
-                >
-                  <AlertDescription
-                    className={
-                      message.includes("Error") || message.includes("Failed") ? "text-red-700" : "text-green-700"
-                    }
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={handleEdit}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                   >
-                    {message}
-                  </AlertDescription>
-                </Alert>
-              )}
-            </CardContent>
-          </Card>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                    Edit Pass
+                  </button>
+                  <button
+                    onClick={() => setShowShareModal(true)}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                      />
+                    </svg>
+                    Share Pass
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {(editMode || !currentPass) && (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700">Pass Image</label>
+                  <div className="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:border-slate-400 transition-colors">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      {imagePreview ? (
+                        <img
+                          src={imagePreview || "/placeholder.svg"}
+                          alt="Preview"
+                          className="mx-auto rounded-lg shadow-sm max-h-40"
+                        />
+                      ) : (
+                        <div className="space-y-2">
+                          <svg
+                            className="w-8 h-8 mx-auto text-slate-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+                          <p className="text-sm text-slate-600">Click to upload image</p>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700">Number of Passes</label>
+                  <input
+                    type="number"
+                    value={count}
+                    min={1}
+                    onChange={(e) => setCount(e.target.value)}
+                    required
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg font-semibold"
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                    {currentPass ? "Update Pass" : "Create Pass"}
+                  </button>
+                  {currentPass && (
+                    <button
+                      type="button"
+                      onClick={() => setEditMode(false)}
+                      className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
+
+            {message && (
+              <div
+                className={`mt-4 p-3 rounded-lg ${
+                  message.includes("Error") || message.includes("Failed")
+                    ? "bg-red-50 border border-red-200 text-red-700"
+                    : "bg-green-50 border border-green-200 text-green-700"
+                }`}
+              >
+                {message}
+              </div>
+            )}
+          </div>
 
           {/* Employee Management */}
           <EmployeeSection API_BASE_URL={API_BASE_URL} />
         </div>
 
         {/* Actions */}
-        <Card className="border-0 shadow-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-blue-600" />
-              System Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={openUserTable} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
-              <Users className="h-4 w-4 mr-2" />
-              View User Passes Detail
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-xl shadow-xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-blue-100 rounded-lg p-2">
+              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-xl font-semibold text-slate-800">System Overview</h2>
+          </div>
+          <button
+            onClick={openUserTable}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+            </svg>
+            View User Passes Detail
+          </button>
+        </div>
       </div>
 
       {/* Share Modal */}
-      <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Share2 className="h-5 w-5 text-purple-600" />
-              Share Pass
-            </DialogTitle>
-            <DialogDescription>Send passes to recipients via WhatsApp</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleShare} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="recipientName">Recipient Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  id="recipientName"
-                  type="text"
-                  value={shareName}
-                  onChange={(e) => setShareName(e.target.value)}
-                  required
-                  maxLength={30}
-                  className="pl-10"
-                  placeholder="Enter recipient name"
-                />
+      {showShareModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-purple-100 rounded-lg p-2">
+                <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">Share Pass</h3>
+                <p className="text-sm text-slate-600">Send passes to recipients via WhatsApp</p>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="mobile">Mobile Number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  id="mobile"
-                  type="tel"
-                  value={shareMobile}
-                  onChange={(e) => setShareMobile(e.target.value)}
-                  required
-                  pattern="[0-9]{10,15}"
-                  className="pl-10"
-                  placeholder="Enter mobile number"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="passCount">Number of Passes</Label>
-              <Input
-                id="passCount"
-                type="number"
-                value={shareCount}
-                min={1}
-                max={currentPass?.count || 1}
-                onChange={(e) => setShareCount(e.target.value)}
-                required
-                className="text-center"
-              />
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-              <Button type="button" onClick={() => setShowShareModal(false)} variant="outline" className="flex-1">
-                Cancel
-              </Button>
-            </div>
-
-            {shareMessage && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-700">{shareMessage}</AlertDescription>
-              </Alert>
-            )}
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* OTP Modal */}
-      <Dialog open={showOtpModal} onOpenChange={setShowOtpModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-green-600" />
-              Verify OTP
-            </DialogTitle>
-          </DialogHeader>
-          {otpSent ? (
-            <div className="space-y-4">
-              <div className="text-center p-4 bg-slate-50 rounded-lg">
-                <p className="text-sm text-slate-600">
-                  {isDemoMode ? (
-                    <>
-                      OTP sent to {pendingShare?.mobile}
-                      {demoOtp && (
-                        <div className="mt-2 p-2 bg-green-100 rounded text-green-700 font-mono">
-                          Demo OTP: {demoOtp}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    `OTP sent to ${pendingShare?.mobile} via SMS.`
-                  )}
-                </p>
+            <form onSubmit={handleShare} className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700">Recipient Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={shareName}
+                    onChange={(e) => setShareName(e.target.value)}
+                    required
+                    maxLength={30}
+                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter recipient name"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="otp">Enter OTP</Label>
-                <Input
-                  id="otp"
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  maxLength={6}
-                  className="text-center text-lg font-mono tracking-widest"
-                  placeholder="000000"
+                <label className="block text-sm font-medium text-slate-700">Mobile Number</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="tel"
+                    value={shareMobile}
+                    onChange={(e) => setShareMobile(e.target.value)}
+                    required
+                    pattern="[0-9]{10,15}"
+                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter mobile number"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700">Number of Passes</label>
+                <input
+                  type="number"
+                  value={shareCount}
+                  min={1}
+                  max={currentPass?.count || 1}
+                  onChange={(e) => setShareCount(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center"
                 />
               </div>
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleVerifyOtp}
-                  disabled={otp.length !== 6}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="submit"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                 >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Verify & Share
-                </Button>
-                <Button
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                    />
+                  </svg>
+                  Share
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowShareModal(false)}
+                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              {shareMessage && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{shareMessage}</div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* OTP Modal */}
+      {showOtpModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="bg-green-100 rounded-lg p-2">
+                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold">Verify OTP</h3>
+            </div>
+
+            {otpSent ? (
+              <div className="space-y-4">
+                <div className="text-center p-4 bg-slate-50 rounded-lg">
+                  <p className="text-sm text-slate-600">
+                    {isDemoMode ? (
+                      <>
+                        OTP sent to {pendingShare?.mobile}
+                        {demoOtp && (
+                          <div className="mt-2 p-2 bg-green-100 rounded text-green-700 font-mono font-bold">
+                            Demo OTP: {demoOtp}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      `OTP sent to ${pendingShare?.mobile} via SMS.`
+                    )}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-slate-700">Enter OTP</label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    maxLength={6}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-center text-lg font-mono tracking-widest"
+                    placeholder="000000"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={otp.length !== 6}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Verify & Share
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowOtpModal(false)
+                      setPendingShare(null)
+                    }}
+                    className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+
+                {otpError && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{otpError}</div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-slate-600 mb-4">Sending OTP...</p>
+                <button
                   onClick={() => {
                     setShowOtpModal(false)
                     setPendingShare(null)
                   }}
-                  variant="outline"
-                  className="flex-1"
+                  className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Cancel
-                </Button>
+                </button>
               </div>
-
-              {otpError && (
-                <Alert className="border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-700">{otpError}</AlertDescription>
-                </Alert>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-600 mb-4" />
-              <p className="text-slate-600 mb-4">Sending OTP...</p>
-              <Button
-                onClick={() => {
-                  setShowOtpModal(false)
-                  setPendingShare(null)
-                }}
-                variant="outline"
-              >
-                Cancel
-              </Button>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* User Table Modal */}
-      <Dialog open={showUserTable} onOpenChange={setShowUserTable}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-600" />
-              All User Passes
-            </DialogTitle>
-          </DialogHeader>
-          <AdminSalesTable />
-        </DialogContent>
-      </Dialog>
+      {showUserTable && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 rounded-lg p-2">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold">All User Passes</h3>
+              </div>
+              <button onClick={closeUserTable} className="text-slate-400 hover:text-slate-600 transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <AdminSalesTable />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -1174,120 +1302,174 @@ function EmployeeSection({ API_BASE_URL }) {
   }
 
   return (
-    <Card className="border-0 shadow-xl">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <UserPlus className="h-5 w-5 text-indigo-600" />
-          Employee Management
-        </CardTitle>
-        <CardDescription>Add and manage employee accounts</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="empName">Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  id="empName"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Employee name"
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
+    <div className="bg-white rounded-xl shadow-xl p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-indigo-100 rounded-lg p-2">
+          <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-slate-800">Employee Management</h2>
+          <p className="text-slate-600 text-sm">Add and manage employee accounts</p>
+        </div>
+      </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="empMobile">Mobile</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  id="empMobile"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  placeholder="Mobile number"
-                  required
-                  className="pl-10"
-                />
-              </div>
-            </div>
-          </div>
-
+      <form onSubmit={handleCreate} className="space-y-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="empPassword">Password</Label>
+            <label className="block text-sm font-medium text-slate-700">Name</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input
-                id="empPassword"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </div>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Employee name"
                 required
-                type="password"
-                className="pl-10"
+                className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full bg-indigo-600 hover:bg-indigo-700">
-            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
-            Add Employee
-          </Button>
-        </form>
-
-        {msg && (
-          <Alert className={msg.includes("successfully") ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}>
-            <AlertDescription className={msg.includes("successfully") ? "text-green-700" : "text-red-700"}>
-              {msg}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <Separator />
-
-        <div className="space-y-3">
-          <h4 className="font-semibold text-slate-800">Current Employees</h4>
-          {employees.length === 0 ? (
-            <p className="text-slate-500 text-center py-4">No employees added yet</p>
-          ) : (
-            <div className="space-y-3">
-              {employees.map((emp) => (
-                <Card key={emp._id} className="border border-slate-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="font-medium text-slate-800">{emp.name}</p>
-                        <p className="text-sm text-slate-600 flex items-center gap-1">
-                          <Phone className="h-3 w-3" />
-                          {emp.mobile}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <Badge
-                          variant={emp.password ? "default" : "destructive"}
-                          className={emp.password ? "bg-green-100 text-green-700 hover:bg-green-200" : ""}
-                        >
-                          {emp.password ? (
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                          ) : (
-                            <XCircle className="h-3 w-3 mr-1" />
-                          )}
-                          {emp.password ? "Active" : "No Password"}
-                        </Badge>
-                        {emp.password && <p className="text-xs text-slate-500 mt-1">{emp.password.length} chars</p>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-700">Mobile</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  />
+                </svg>
+              </div>
+              <input
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="Mobile number"
+                required
+                className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
             </div>
-          )}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-slate-700">Password</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+            </div>
+            <input
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              required
+              type="password"
+              className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+        >
+          {loading ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          ) : (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+          )}
+          Add Employee
+        </button>
+      </form>
+
+      {msg && (
+        <div
+          className={`mb-4 p-3 rounded-lg ${
+            msg.includes("successfully")
+              ? "bg-green-50 border border-green-200 text-green-700"
+              : "bg-red-50 border border-red-200 text-red-700"
+          }`}
+        >
+          {msg}
+        </div>
+      )}
+
+      <div className="border-t border-slate-200 pt-4">
+        <h4 className="font-semibold text-slate-800 mb-3">Current Employees</h4>
+        {employees.length === 0 ? (
+          <p className="text-slate-500 text-center py-4">No employees added yet</p>
+        ) : (
+          <div className="space-y-3">
+            {employees.map((emp) => (
+              <div key={emp._id} className="border border-slate-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="font-medium text-slate-800">{emp.name}</p>
+                    <p className="text-sm text-slate-600 flex items-center gap-1">
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        />
+                      </svg>
+                      {emp.mobile}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        emp.password ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {emp.password ? (
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      )}
+                      {emp.password ? "Active" : "No Password"}
+                    </span>
+                    {emp.password && <p className="text-xs text-slate-500 mt-1">{emp.password.length} chars</p>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
