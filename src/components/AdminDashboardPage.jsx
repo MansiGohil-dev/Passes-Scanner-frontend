@@ -561,9 +561,9 @@ function AdminDashboardPage() {
 
   const getImageUrl = (url) => {
     if (!url) return "";
-    if (url.startsWith("http")) return url;
-    const cleanUrl = url.replace(/^\/?uploads\/?/, "");
-    return `${API_BASE_URL}/uploads/${cleanUrl}`;
+    if (url.startsWith("http")) return url; // For S3 or external URLs
+    const cleanUrl = url.replace(/^\/?[Uu]ploads\/*/, ""); // Remove leading uploads/ or Uploads/
+    return `${API_BASE_URL}/uploads/${cleanUrl}`.replace(/\/+/g, "/"); // Avoid double slashes
   };
 
   const fetchCurrentPass = async () => {
@@ -723,6 +723,7 @@ function AdminDashboardPage() {
               src={getImageUrl(currentPass.imageUrl)}
               alt="Pass"
               className="mx-auto mb-4 rounded shadow max-h-48"
+              onError={(e) => console.error("Image load error:", e)}
             />
             <p className="mb-2">Available Passes: <span className="font-bold">{currentPass.count}</span></p>
             <button
