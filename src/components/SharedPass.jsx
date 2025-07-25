@@ -135,12 +135,11 @@ function SharedPass() {
         {/* Pass Image */}
         {info.imageUrl && (
           <img
-            src={`${API_BASE_URL.replace(/\/api.*/, '')}/${info.imageUrl.replace(/\\/g, '/')}`}
+            src={`${API_BASE_URL.replace(/\/api.*/, '')}/${info.imageUrl.replace(/\\/g, '/')}`
             alt="Pass"
             className="mx-auto mb-4 rounded shadow max-h-48"
           />
         )}
-        {/* Show only the main user's pass image and QR */}
         <div className="mb-4 flex flex-col items-center">
           <span className="font-semibold text-gray-700 mb-1">Your Pass</span>
           <QRCodeSVG
@@ -149,17 +148,16 @@ function SharedPass() {
             className="mx-auto mb-2"
           />
         </div>
+        <div className="mb-2 text-lg">Name: <span className="font-bold">{info.name}</span></div>
+        <div className="mb-2 text-lg">Mobile: <span className="font-mono">{info.mobile}</span></div>
+        <div className="mb-2 text-lg">Number of Passes: <span className="font-bold">{info.count}</span></div>
+        <div className="mb-2 text-lg">Passes you can share: <span className="font-bold">{info.remaining}</span></div>
         {/* Section for sharing extra passes */}
-        {info.count > 1 && (
+        {info.remaining > 0 && (
           <div className="mb-4 p-4 bg-gray-50 rounded-lg shadow-inner">
-            {/* <h3 className="text-lg font-bold mb-2 text-green-800">Share Extra Passes</h3> */}
             <ShareExtraPass token={info.token} total={info.count} remaining={info.remaining} />
           </div>
         )}
-        <p className="mb-2 text-lg">
-          Mobile: <span className="font-mono cursor-pointer text-blue-600 underline" onClick={handleShareClick}>{info.mobile}</span>
-        </p>
-        <p className="mb-2 text-lg">Number of Passes: <span className="font-bold">{info.count}</span></p>
         <p className="text-xs text-gray-400 mt-4">Show this QR code at the event or to the admin for verification. Share extra passes with others using the copy button.</p>
       </div>
       {/* OTP Modal */}
