@@ -555,14 +555,6 @@ function AdminDashboardPage() {
     }
   };
 
-  const getImageUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("http")) return url; // For S3 or external URLs
-    // Ensure correct URL by combining API_BASE_URL with cleaned imageUrl
-    const cleanUrl = url.replace(/^\/?[Uu]ploads\/*/i, ""); // Remove leading Uploads/ (case-insensitive)
-    return `${API_BASE_URL}/uploads/${cleanUrl}`.replace(/\/+/g, "/"); // Prevent double slashes
-  };
-
   const fetchCurrentPass = async () => {
     try {
       setLoading(true);

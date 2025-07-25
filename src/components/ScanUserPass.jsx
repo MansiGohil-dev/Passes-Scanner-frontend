@@ -4,6 +4,7 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useNavigate } from 'react-router-dom';
 import 'webrtc-adapter';
 
+import { getImageUrl } from '../utils/getImageUrl';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function ScanUserPass() {
