@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
 import ShareExtraPass from './ShareExtraPass';
-
+import { getImageUrl } from '../utils/getImageUrl';
 function SharedPass() {
   const { token } = useParams();
   const [info, setInfo] = useState(null);
