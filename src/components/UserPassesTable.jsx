@@ -6,6 +6,7 @@ function UserPassesTable({ API_BASE_URL }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchPasses = async () => {
     try {
@@ -37,46 +38,80 @@ function UserPassesTable({ API_BASE_URL }) {
     }
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error) return <div className="text-center py-8 text-red-600">{error}</div>;
+  // Filter passes by search
+  const filteredPasses = passes.filter(
+    (p) =>
+      (p.name && p.name.toLowerCase().includes(search.toLowerCase())) ||
+      (p.mobile && p.mobile.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-[70vh] w-full">
+        <span className="text-xl text-blue-600 animate-pulse">Loading...</span>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="flex items-center justify-center h-[70vh] w-full">
+        <span className="text-xl text-red-600">{error}</span>
+      </div>
+    );
 
   return (
-    <div className="overflow-x-auto rounded-xl w-full">
-      <table className="min-w-full text-base sm:text-lg border-separate border-spacing-y-2">
-        <thead className="bg-blue-600 text-white sticky top-0 z-10">
-          <tr>
-            <th className="px-4 sm:px-6 py-3 sm:py-4 rounded-tl-xl">Name</th>
-            <th className="px-4 sm:px-6 py-3 sm:py-4">Mobile</th>
-            <th className="px-4 sm:px-6 py-3 sm:py-4">Actions</th>
-            <th className="px-4 sm:px-6 py-3 sm:py-4 rounded-tr-xl">Pass Count</th>
-          </tr>
-        </thead>
-        <tbody className="mt-4 align-top">
-          {passes.length === 0 ? (
-            <tr><td colSpan="3" className="text-center py-8 text-gray-500 text-xl">No user passes found.</td></tr>
-          ) : (
-            passes.map((u, idx) => (
-              <tr
-                key={u.token || idx}
-                className={`transition-all duration-200 ${idx % 2 === 0 ? 'bg-blue-50' : 'bg-white'} hover:bg-blue-100 hover:shadow-lg`}
-              >
-                <td className="px-4 sm:px-6 py-3 sm:py-4">
-                  <button
-                    className="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded shadow-sm disabled:opacity-50"
-                    onClick={() => handleDelete(u.mobile)}
-                    disabled={deleting === u.mobile}
-                  >
-                    {deleting === u.mobile ? 'Deleting...' : 'Delete'}
-                  </button>
+    <div className="fixed inset-0 bg-white z-50 flex flex-col px-2 sm:px-8 py-8 overflow-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <h2 className="text-2xl font-bold text-blue-800 tracking-tight">All User Passes</h2>
+        <input
+          type="text"
+          placeholder="Search by name or mobile..."
+          className="w-full sm:w-80 px-4 py-2 border border-blue-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 text-base"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          aria-label="Search user passes"
+        />
+      </div>
+      <div className="flex-1 overflow-auto rounded-2xl shadow-lg bg-white border border-blue-100">
+        <table className="min-w-full text-base sm:text-lg border-separate border-spacing-y-2">
+          <thead className="bg-blue-600 text-white sticky top-0 z-10">
+            <tr>
+              <th className="px-6 py-4 rounded-tl-2xl text-left">Name</th>
+              <th className="px-6 py-4 text-left">Mobile</th>
+              <th className="px-6 py-4 text-left">Pass Count</th>
+              <th className="px-6 py-4 rounded-tr-2xl text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="align-top">
+            {filteredPasses.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="text-center py-12 text-gray-400 text-xl font-semibold">
+                  No results found.
                 </td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 font-semibold text-gray-800">{u.name || '-'}</td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono text-blue-700">{u.mobile}</td>
-                <td className="px-4 sm:px-6 py-3 sm:py-4 font-bold text-purple-700">{u.count}</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              filteredPasses.map((u, idx) => (
+                <tr
+                  key={u.token || idx}
+                  className={`transition-all duration-200 ${idx % 2 === 0 ? 'bg-blue-50' : 'bg-white'} hover:bg-blue-100 hover:shadow-lg`}
+                >
+                  <td className="px-6 py-4 font-semibold text-gray-800">{u.name || '-'}</td>
+                  <td className="px-6 py-4 font-mono text-blue-700">{u.mobile}</td>
+                  <td className="px-6 py-4 font-bold text-purple-700">{u.count}</td>
+                  <td className="px-6 py-4">
+                    <button
+                      className="bg-red-500 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm disabled:opacity-50 transition"
+                      onClick={() => handleDelete(u.mobile)}
+                      disabled={deleting === u.mobile}
+                    >
+                      {deleting === u.mobile ? 'Deleting...' : 'Delete'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
