@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { getImageUrl } from "../utils/getImageUrl"
 import axios from "axios"
 import AdminSalesTable from "./AdminSalesTable"
+import UserPassesTable from "./UserPassesTable"
 
 function AdminDashboardPage() {
   const [showUserTable, setShowUserTable] = useState(false)
@@ -732,6 +733,10 @@ function AdminDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
+            </div>
+            <div className="mt-6">
+              {/* UserPassesTable integration */}
+              <UserPassesTable API_BASE_URL={API_BASE_URL} />
             </div>
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               <AdminSalesTable />
