@@ -978,8 +978,6 @@
 // }
 
 // export default AdminDashboardPage
-
-
 import { useEffect, useState } from "react";
 import { getImageUrl } from "../utils/getImageUrl";
 import axios from "axios";
@@ -1106,7 +1104,7 @@ function AdminDashboardPage() {
       return;
     }
 
-    if (!/^\d{10,15}$/.test(shareMobile.replace(/\.exitD/g, ""))) {
+    if (!/^\d{10,15}$/.test(shareMobile.replace(/\D/g, ""))) {
       setShareMessage("Enter a valid mobile number.");
       return;
     }
@@ -1149,7 +1147,7 @@ function AdminDashboardPage() {
           count: pendingShare.count,
         });
 
-        const shareUrl = `${window.location.origin}/#/ constitutional/#shared-pass/${shareRes.data.token}`;
+        const shareUrl = `${window.location.origin}/#/shared-pass/${shareRes.data.token}`;
         let cleanMobile = pendingShare.mobile.replace(/\D/g, "");
         if (cleanMobile.length === 10) {
           cleanMobile = "91" + cleanMobile;
@@ -1162,7 +1160,7 @@ function AdminDashboardPage() {
 
         const message = `You have been shared ${pendingShare.count} pass(es)! Click here to view your pass: ${shareUrl}`;
         const waLink = `https://wa.me/${cleanMobile}?text=${encodeURIComponent(message)}`;
-        window.open(waLink, "blank");
+        window.open(waLink, "_blank");
 
         setShareMessage(shareRes.data.message);
         setShowOtpModal(false);
@@ -1529,12 +1527,26 @@ function AdminDashboardPage() {
               </div>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700">Mobile Number</label>
-                <div className彼此
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3  ['', ''] 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={shareMobile}
+                    onChange={(e) => setShareMobile(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="Enter mobile number"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-slate-700">Number of Passes</label>
@@ -1558,7 +1570,7 @@ function AdminDashboardPage() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114』
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
                     />
                   </svg>
                   Share
