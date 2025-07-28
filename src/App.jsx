@@ -17,8 +17,7 @@ function App() {
   const isAuthenticated = sessionStorage.getItem('team420') === 'true';
 
   return (
-    <>
-    <p>Hello</p>
+
      <Routes>
       <Route
         path="/"
@@ -44,8 +43,7 @@ function App() {
       <Route path="/scan-pass/:token" element={<ScanPass />} />
       <Route path="/scan-user-pass" element={<ScanUserPass />} />
     </Routes>
-    </>
-   
+
   );
 }
 
