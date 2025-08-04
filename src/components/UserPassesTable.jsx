@@ -116,4 +116,4 @@ function UserPassesTable({ API_BASE_URL }) {
   );
 }
 
-export default UserPassesTable;
+export default UserPassesTable; 

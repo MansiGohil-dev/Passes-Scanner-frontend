@@ -1537,6 +1537,9 @@ function ScanUserPass() {
     } else {
       setEmployeeMobile(mobile)
       setEmployeeId(id)
+      // Automatically open scanner/camera for authenticated WMP
+      setShowScanner(true)
+      setScannerReady(true)
     }
   }, [navigate])
 
