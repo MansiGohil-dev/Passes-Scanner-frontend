@@ -1970,15 +1970,14 @@ function ScanUserPass() {
           </div>
         </div>
       )}
-      {/* Only show camera/scanner */}
+      {/* Fullscreen camera-only view */}
       {showScanner && cameraReady && (
-        <div className="border-2 border-dashed border-blue-300 p-4 rounded-lg bg-white shadow-lg">
-          <div id="reader" style={{ width: '320px', height: '320px' }} />
+        <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000' }}>
+          <div id="reader" style={{ width: '100vw', maxWidth: 480, height: '70vh', borderRadius: 12, overflow: 'hidden', background: '#000' }} />
         </div>
       )}
-      {/* Show error if camera not available */}
       {cameraError && (
-        <div className="text-red-600 text-lg font-semibold p-8 bg-red-50 rounded shadow-lg">
+        <div style={{ color: '#b91c1c', fontWeight: 600, fontSize: 20, padding: 32, background: '#fee2e2', borderRadius: 12 }}>
           {cameraError}
         </div>
       )}
