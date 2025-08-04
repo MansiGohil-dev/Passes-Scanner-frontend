@@ -1970,6 +1970,18 @@ function ScanUserPass() {
           </div>
         </div>
       )}
+      {/* Only show camera/scanner */}
+      {showScanner && cameraReady && (
+        <div className="border-2 border-dashed border-blue-300 p-4 rounded-lg bg-white shadow-lg">
+          <div id="reader" style={{ width: '320px', height: '320px' }} />
+        </div>
+      )}
+      {/* Show error if camera not available */}
+      {cameraError && (
+        <div className="text-red-600 text-lg font-semibold p-8 bg-red-50 rounded shadow-lg">
+          {cameraError}
+        </div>
+      )}
     </div>
   )
 }
