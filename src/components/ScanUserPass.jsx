@@ -1537,9 +1537,23 @@ function ScanUserPass() {
     } else {
       setEmployeeMobile(mobile)
       setEmployeeId(id)
-      // Automatically open scanner/camera for authenticated WMP
-      setShowScanner(true)
-      setScannerReady(true)
+      // Request camera permission and open scanner automatically
+      async function openCamera() {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+          })
+          stream.getTracks().forEach(track => track.stop())
+          setCameraReady(true)
+          setShowScanner(true)
+          setCameraError("")
+        } catch (error) {
+          setCameraError("Camera permission denied or not available: " + error.message)
+          setCameraReady(false)
+          setShowScanner(false)
+        }
+      }
+      openCamera()
     }
   }, [navigate])
 
